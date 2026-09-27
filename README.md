@@ -1,4 +1,4 @@
-# 🍿 Popcorn Time
+# 🍿 Popcorn Jawn
 
 A self-hosted media share page. When a movie finishes downloading in Radarr, it automatically gets uploaded to [gofile.io](https://gofile.io) and appears on a simple web page. Links expire after 10 days and drop off on their own — nothing to manage.
 

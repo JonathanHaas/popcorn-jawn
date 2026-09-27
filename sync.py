@@ -119,7 +119,7 @@ def main():
             "openclaw", "message", "send",
             "--channel", "telegram",
             "--target", "8880003956",
-            "--message", f"🍿 {title} ({year}) is now on Popcorn Time\n{link}\nExpires in {GOFILE_EXPIRY_DAYS} days",
+            "--message", f"🍿 {title} ({year}) is now on Popcorn Jawn\n{link}\nExpires in {GOFILE_EXPIRY_DAYS} days",
         ], capture_output=True)
 
     print(f"Sync complete. {new_count} new upload(s).")
