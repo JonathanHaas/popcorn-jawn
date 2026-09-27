@@ -49,9 +49,9 @@
     <ellipse cx="66" cy="29" rx="5" ry="4" fill="#ffffff" opacity="0.5"/>
   </g>
 
-  <!-- Movie Time title -->
+  <!-- Popcorn Time title -->
   <text x="600" y="355" font-size="72" font-weight="900" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif" fill="#C8102E" letter-spacing="-1">Movie Time</text>
+        font-family="Georgia, 'Times New Roman', serif" fill="#C8102E" letter-spacing="-1">Popcorn Time</text>
 
   <!-- Tagline -->
   <text x="600" y="400" font-size="24" text-anchor="middle"
