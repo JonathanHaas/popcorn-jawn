@@ -76,6 +76,24 @@
       animation: popcorn-pop 3s ease-in-out infinite;
       transform-origin: center bottom;
     }
+    .popcorn-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    @keyframes kernel-fly {
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.6) rotate(0deg); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--kx)), calc(-50% + var(--ky))) scale(1) rotate(var(--kr)); }
+    }
+    .kernel-particle {
+      position: absolute;
+      left: 50%; top: 30%;
+      width: 9px; height: 11px;
+      border-radius: 50% 50% 40% 40% / 55% 55% 45% 45%;
+      background: radial-gradient(ellipse at 35% 30%, #fffde7, #ffe082 70%, #ffc107);
+      border: 1px solid #c8940a;
+      pointer-events: none;
+      animation: kernel-fly var(--kd) cubic-bezier(0.2, 0.8, 0.6, 1) forwards;
+    }
 
     .kernel {
       display: inline-block;
@@ -129,7 +147,11 @@
 
   <!-- Header box -->
   <div style="background:#ffffff; border-bottom: 4px solid #8B0000;" class="px-6 py-6 text-center">
-    <div class="text-5xl mb-1"><span class="popcorn-pop">🍿</span></div>
+    <div class="text-5xl mb-1">
+      <span class="popcorn-wrap" id="popcorn-wrap">
+        <span class="popcorn-pop">🍿</span>
+      </span>
+    </div>
     <h1 class="slab text-4xl tracking-tight" style="color:#C8102E;">Popcorn Time</h1>
     <div class="flex items-center justify-center gap-2 mt-1">
       <span class="kernel"></span>
@@ -238,6 +260,28 @@
     }
 
     load();
+
+    // Popcorn kernel burst
+    const wrap = document.getElementById('popcorn-wrap');
+    function spawnKernels() {
+      const count = 5 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const k = document.createElement('span');
+          k.className = 'kernel-particle';
+          const angle = (Math.random() * 160 - 80) * Math.PI / 180;
+          const dist = 45 + Math.random() * 45;
+          k.style.setProperty('--kx', (Math.sin(angle) * dist) + 'px');
+          k.style.setProperty('--ky', (-Math.cos(angle) * dist - 20) + 'px');
+          k.style.setProperty('--kr', (Math.random() * 360 - 180) + 'deg');
+          k.style.setProperty('--kd', (0.6 + Math.random() * 0.4) + 's');
+          wrap.appendChild(k);
+          setTimeout(() => k.remove(), 1100);
+        }, i * 40);
+      }
+    }
+    // Fire at 78% of the 3s animation cycle = 2340ms, then every 3s
+    setTimeout(() => { spawnKernels(); setInterval(spawnKernels, 3000); }, 2340);
   </script>
 </body>
 </html>
