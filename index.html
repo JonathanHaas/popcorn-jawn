@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Time</title>
+  <meta property="og:title" content="Movie Time">
+  <meta property="og:description" content="Fresh downloads, ready to watch">
+  <meta property="og:image" content="https://popcorn.jawnhaas.xyz/og.png?v=2">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:url" content="https://popcorn.jawnhaas.xyz">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://popcorn.jawnhaas.xyz/og.png?v=2">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { background-color: #C8102E; }
+
+    .stripe-border {
+      background: repeating-linear-gradient(
+        180deg,
+        #C8102E 0px, #C8102E 18px,
+        #ffffff 18px, #ffffff 36px
+      );
+    }
+
+    .popcorn-box {
+      background: #ffffff;
+      border-radius: 0 0 14px 14px;
+      border: 3px solid #8B0000;
+      border-top: none;
+      clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
+    }
+
+    .slab { font-family: 'Alfa Slab One', serif; }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 3px solid #8B0000;
+      overflow: hidden;
+    }
+
+    .card-accent {
+      background: repeating-linear-gradient(
+        90deg,
+        #C8102E 0px, #C8102E 10px,
+        #ffffff 10px, #ffffff 20px
+      );
+      height: 8px;
+    }
+
+    .rent-btn {
+      background: #C8102E;
+      color: #ffffff;
+      font-family: 'Alfa Slab One', serif;
+      border-radius: 8px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+    .rent-btn:hover { background: #8B0000; }
+
+    .kernel {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: #FFD200;
+      border-radius: 50%;
+      margin: 0 2px;
+    }
+  </style>
+</head>
+<body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
+
+  <!-- Header stripe top -->
+  <div class="stripe-border h-10"></div>
+
+  <!-- Header box -->
+  <div style="background:#ffffff; border-bottom: 4px solid #8B0000;" class="px-6 py-6 text-center">
+    <div class="text-5xl mb-1">🍿</div>
+    <h1 class="slab text-4xl tracking-tight" style="color:#C8102E;">Movie Time</h1>
+    <div class="flex items-center justify-center gap-2 mt-1">
+      <span class="kernel"></span>
+      <span class="text-xs font-semibold tracking-widest uppercase" style="color:#8B0000;">Now Showing · Fresh Downloads</span>
+      <span class="kernel"></span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="max-w-2xl mx-auto px-4 py-8">
+
+    <div id="shares" class="space-y-4"></div>
+    <div id="empty" class="hidden text-center py-16">
+      <div class="text-4xl mb-3">🎞️</div>
+      <p class="slab text-xl" style="color:#ffffff;">No showings tonight</p>
+      <p class="text-sm mt-1" style="color:#ffaaaa;">Check back soon</p>
+    </div>
+
+    <!-- Expired -->
+    <div id="history-section" class="mt-10 hidden">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="kernel"></span>
+        <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffaaaa;">Past Showings</span>
+        <span class="kernel"></span>
+      </div>
+      <div id="history"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center py-4" style="color:#ffaaaa; font-size:0.75rem; font-family:'Inter',sans-serif;">
+    Made with ❤️ in Philadelphia
+  </div>
+
+  <!-- Footer stripe -->
+  <div class="stripe-border h-10"></div>
+
+  <script>
+    function daysUntil(iso) {
+      return Math.ceil((new Date(iso) - new Date()) / 86400000);
+    }
+
+    function expiryBadge(iso) {
+      const d = daysUntil(iso);
+      if (d <= 0) return '<span class="text-xs font-bold" style="color:#ef4444;">Expired</span>';
+      if (d <= 2) return `<span class="text-xs font-bold" style="color:#ef4444;">⚠ ${d}d left</span>`;
+      if (d <= 5) return `<span class="text-xs font-bold" style="color:#d97706;">${d} days left</span>`;
+      return `<span class="text-xs font-semibold" style="color:#16a34a;">${d} days left</span>`;
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function activeCard(s) {
+      return `
+        <div class="card">
+          <div class="card-accent"></div>
+          <div class="p-5 flex items-center gap-4">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl" style="background:#FFF0F0; border:2px solid #C8102E;">🎬</div>
+            <div class="flex-1 min-w-0">
+              <div class="slab text-lg leading-tight" style="color:#1a1a1a;">${s.title}</div>
+              <div class="flex flex-wrap items-center gap-2 mt-1">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#FFF0F0; color:#C8102E;">${s.year}</span>
+                <span class="text-xs" style="color:#666;">${s.size_human}</span>
+                <span class="text-xs" style="color:#bbb;">·</span>
+                <span class="text-xs" style="color:#666;">Added ${formatDate(s.created)}</span>
+                <span class="text-xs" style="color:#bbb;">·</span>
+                ${expiryBadge(s.expires)}
+              </div>
+            </div>
+            <a href="${s.gofile_link}" target="_blank" class="rent-btn flex-shrink-0 text-sm px-4 py-2 no-underline">
+              Get It
+            </a>
+          </div>
+        </div>`;
+    }
+
+    function expiredRow(s) {
+      return `
+        <div class="flex items-center py-2 border-b" style="border-color:#ffaaaa33;">
+          <span class="text-sm font-semibold" style="color:#ffaaaa;">${s.title} <span style="font-weight:400;">(${s.year})</span></span>
+          <span class="ml-auto text-xs" style="color:#ff666680;">Expired ${formatDate(s.expires)}</span>
+        </div>`;
+    }
+
+    async function load() {
+      try {
+        const data = await fetch('shares.json?t=' + Date.now()).then(r => r.json());
+        const shares = data.shares || [];
+        const active = shares.filter(s => daysUntil(s.expires) > 0).reverse();
+        const expired = shares.filter(s => daysUntil(s.expires) <= 0).reverse();
+
+        if (active.length === 0) {
+          document.getElementById('empty').classList.remove('hidden');
+        } else {
+          document.getElementById('shares').innerHTML = active.map(activeCard).join('');
+        }
+        if (expired.length > 0) {
+          document.getElementById('history-section').classList.remove('hidden');
+          document.getElementById('history').innerHTML = expired.map(expiredRow).join('');
+        }
+      } catch {
+        document.getElementById('shares').innerHTML = '<p class="text-sm font-bold" style="color:#ffaaaa;">Failed to load shares.</p>';
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>

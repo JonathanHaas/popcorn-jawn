@@ -1,0 +1,5 @@
+{
+  "radarr_url": "http://localhost:7878",
+  "radarr_key": "your-radarr-api-key",
+  "gofile_expiry_days": 10
+}
