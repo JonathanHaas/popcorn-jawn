@@ -425,10 +425,10 @@
                     ${badge}
                     <span class="rating-slot text-xs" style="color:#aaa;">…</span>
                   </div>
-                  ${r.overview ? `<p class="text-xs mt-1 leading-snug line-clamp-2" style="color:#555;">${r.overview}</p>` : ''}
                 </div>
                 ${btn}
               </div>
+              <div class="card-panel"><div class="cd-backdrop-wrap loading"></div><div class="cd-body"></div></div>
             </div>`;
         }).join('');
         fetchRatings(data.results, document.getElementById('req-results'));
