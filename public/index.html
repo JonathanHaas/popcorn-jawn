@@ -98,11 +98,12 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.45);
       border: 2px solid #8B0000;
       background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
     }
-    #req-results .card:first-child { border-radius: 8px 8px 0 0; }
-    #req-results .card:last-child  { border-radius: 0 0 8px 8px; }
-    #req-results .card:only-child  { border-radius: 8px; }
-    #req-results .card { border-left: none; border-right: none; border-top: none; border-radius: 0; }
+    #req-results .card { border: none; border-bottom: 1px solid #f0e0e0; border-radius: 0; }
+    #req-results .card:last-child { border-bottom: none; }
+    #req-results .card .card-accent { display: none; }
 
     .card-accent {
       background: repeating-linear-gradient(
