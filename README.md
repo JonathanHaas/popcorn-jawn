@@ -1,5 +1,7 @@
 # 🍿 Popcorn Jawn
 
+**Live at [popcorn.jawnhaas.xyz](https://popcorn.jawnhaas.xyz)**
+
 A self-hosted media share page. When a movie finishes downloading in Radarr, it automatically gets uploaded to [gofile.io](https://gofile.io) and appears on a simple web page with poster thumbnails, Rotten Tomatoes scores, and IMDb ratings. Links expire after 10 days — nothing to manage.
 
 Also includes a built-in movie request interface powered by Jellyseerr.
@@ -15,6 +17,14 @@ Also includes a built-in movie request interface powered by Jellyseerr.
 5. The request search box queries Jellyseerr live via `arr-control` (keeps API keys server-side)
 
 ## Setup
+
+### Stack
+
+`index.html` is a single self-contained file — no build step, no bundler.
+
+- **[Tailwind CSS](https://tailwindcss.com)** — loaded via CDN (`cdn.tailwindcss.com`). Utility classes handle all layout and spacing; custom styles in a `<style>` block cover the card design, shimmer animation, and theme colors.
+- **[Alfa Slab One](https://fonts.google.com/specimen/Alfa+Slab+One)** + **Inter** via Google Fonts — display font for titles, Inter for body text.
+- **Vanilla JS** — no framework. `fetch()` for API calls, `localStorage` for pending request state, CSS transitions for the accordion panels and shimmer.
 
 ### Requirements
 
