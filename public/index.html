@@ -312,7 +312,7 @@
           document.getElementById('empty').classList.remove('hidden');
         } else {
           document.getElementById('shares').innerHTML = active.map(activeCard).join('');
-          fetchRatings(active.filter(s => s.tmdbId).map(s => ({id: s.tmdbId, mediaType: 'movie'})));
+          fetchRatings(active.filter(s => s.tmdbId).map(s => ({id: s.tmdbId, mediaType: 'movie'})), document.getElementById('shares'));
         }
         if (expired.length > 0) {
           document.getElementById('history-section').classList.remove('hidden');
@@ -403,18 +403,18 @@
               </div>
             </div>`;
         }).join('');
-        fetchRatings(data.results);
+        fetchRatings(data.results, document.getElementById('req-results'));
       } catch {
         box.innerHTML = '<p class="text-sm" style="color:#ffcccc;">Search failed.</p>';
       }
     }
 
-    async function fetchRatings(items) {
+    async function fetchRatings(items, scope = document) {
       await Promise.all(items.map(async item => {
         const id = item.id || item.tmdbId;
         const type = item.mediaType || 'movie';
         if (!id) return;
-        const card = document.querySelector(`[data-result-id="${id}"]`);
+        const card = scope.querySelector(`[data-result-id="${id}"]`);
         if (!card) return;
         const slot = card.querySelector('.rating-slot');
         if (!slot) return;
