@@ -45,38 +45,39 @@
       overflow: hidden;
       transition: transform 0.15s, box-shadow 0.15s;
     }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
 
     .card { position: relative; }
-    .card-detail {
-      position: absolute;
-      inset: 0;
-      background: rgba(14,14,14,0.97);
-      transform: translateY(100%);
-      transition: transform 0.26s cubic-bezier(0.32,0,0.12,1);
-      display: flex;
-      flex-direction: column;
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+
+    .card-panel {
+      max-height: 0;
       overflow: hidden;
+      transition: max-height 0.35s ease;
+      background: #111;
+      border-top: 0px solid transparent;
     }
-    .card:hover .card-detail { transform: translateY(0); }
+    .card:hover .card-panel {
+      max-height: 420px;
+      border-top: 1px solid #2a2a2a;
+    }
     .cd-backdrop {
-      width: 100%; height: 110px;
-      object-fit: cover; display: block; flex-shrink: 0;
+      width: 100%; height: 130px;
+      object-fit: cover; display: block;
     }
     .cd-backdrop-fallback {
-      width: 100%; height: 110px; flex-shrink: 0;
+      width: 100%; height: 80px;
       background: linear-gradient(135deg, #8B0000, #C8102E);
-      display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+      display: flex; align-items: center; justify-content: center; font-size: 2rem;
     }
-    .cd-body { padding: 10px 12px; overflow-y: auto; flex: 1; }
-    .cd-tagline { font-size: 11px; color: #bbb; font-style: italic; margin-bottom: 6px; }
-    .cd-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
+    .cd-body { padding: 10px 14px 14px; }
+    .cd-tagline { font-size: 11px; color: #aaa; font-style: italic; margin-bottom: 6px; }
+    .cd-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
     .cd-pill {
       font-size: 11px; padding: 2px 8px; border-radius: 99px;
       background: #2a2a2a; color: #ccc; font-weight: 600;
     }
-    .cd-genre { background: #1e1e1e; color: #999; font-weight: 400; }
-    .cd-overview { font-size: 11px; color: #bbb; line-height: 1.5; margin: 0; }
+    .cd-genre { background: #1e1e1e; color: #888; font-weight: 400; }
+    .cd-overview { font-size: 12px; color: #bbb; line-height: 1.55; margin: 0; }
 
     .card-accent {
       background: repeating-linear-gradient(
@@ -418,11 +419,11 @@
         try {
           const d = await fetch(`/arr-control/seerr/details?id=${id}&type=${type}`).then(x => x.json());
           if (!d.ok) { slot.textContent = ''; return; }
-          // Build inline slide-up detail overlay
-          const prev = card.querySelector('.card-detail');
+          // Build accordion detail panel (in-flow, pushes cards below)
+          const prev = card.querySelector('.card-panel');
           if (prev) prev.remove();
-          const ov = document.createElement('div');
-          ov.className = 'card-detail';
+          const panel = document.createElement('div');
+          panel.className = 'card-panel';
           let metaHtml = '';
           if (d.runtime) metaHtml += `<span class="cd-pill">${d.runtime}m</span>`;
           if (d.rtScore) {
@@ -431,16 +432,16 @@
           }
           if (d.imdbScore) metaHtml += `<span class="cd-pill" style="color:#f5c518">★ ${d.imdbScore}</span>`;
           (d.genres||[]).forEach(g => { metaHtml += `<span class="cd-pill cd-genre">${g}</span>`; });
-          const ov_text = (d.overview||'').length > 200 ? d.overview.slice(0,200)+'…' : (d.overview||'');
-          ov.innerHTML = `${d.backdropPath
+          const overview = (d.overview||'').length > 280 ? d.overview.slice(0,280)+'…' : (d.overview||'');
+          panel.innerHTML = `${d.backdropPath
             ? `<img class="cd-backdrop" src="https://image.tmdb.org/t/p/w780${d.backdropPath}" loading="lazy">`
             : `<div class="cd-backdrop-fallback">🎬</div>`}
             <div class="cd-body">
               ${d.tagline ? `<div class="cd-tagline">${d.tagline}</div>` : ''}
-              <div class="cd-meta">${metaHtml}</div>
-              ${ov_text ? `<p class="cd-overview">${ov_text}</p>` : ''}
+              ${metaHtml ? `<div class="cd-meta">${metaHtml}</div>` : ''}
+              ${overview ? `<p class="cd-overview">${overview}</p>` : ''}
             </div>`;
-          card.appendChild(ov);
+          card.appendChild(panel);
           let html = '';
           if (d.rtScore) {
             const pct = parseInt(d.rtScore);
