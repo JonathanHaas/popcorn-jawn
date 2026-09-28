@@ -43,6 +43,41 @@
       border-radius: 14px;
       border: 3px solid #8B0000;
       overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+
+    #hover-card {
+      position: fixed;
+      z-index: 9999;
+      width: 320px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.96) translateY(4px);
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    #hover-card.visible { opacity: 1; transform: scale(1) translateY(0); }
+    #hover-card .hc-backdrop {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+    }
+    #hover-card .hc-backdrop-fallback {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, #8B0000, #C8102E);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    #hover-card .hc-body {
+      background: #1a1a1a;
+      padding: 14px;
     }
 
     .card-accent {
@@ -141,6 +176,17 @@
   </style>
 </head>
 <body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
+
+  <!-- Hover detail card -->
+  <div id="hover-card">
+    <div id="hc-backdrop-wrap"></div>
+    <div class="hc-body">
+      <div id="hc-title" class="slab text-base leading-tight" style="color:#fff;"></div>
+      <div id="hc-tagline" class="text-xs mt-0.5 italic" style="color:#aaa;"></div>
+      <div id="hc-meta" class="flex flex-wrap gap-2 mt-2"></div>
+      <p id="hc-overview" class="text-xs mt-2 leading-relaxed" style="color:#ccc;"></p>
+    </div>
+  </div>
 
   <!-- Header stripe top -->
   <div class="stripe-border h-10"></div>
@@ -373,6 +419,71 @@
       }
     }
 
+    // --- Hover card ---
+    const hoverCard = document.getElementById('hover-card');
+    let hoverTarget = null, hideTimer = null;
+
+    function showHoverCard(card, e) {
+      const detail = card._detail;
+      if (!detail) return;
+      clearTimeout(hideTimer);
+      hoverTarget = card;
+
+      document.getElementById('hc-title').textContent = card.querySelector('.slab')?.textContent || '';
+      document.getElementById('hc-tagline').textContent = detail.tagline || '';
+      document.getElementById('hc-overview').textContent = detail.overview || '';
+
+      const meta = document.getElementById('hc-meta');
+      meta.innerHTML = '';
+      if (detail.runtime) {
+        meta.innerHTML += `<span class="text-xs px-2 py-0.5 rounded-full" style="background:#333;color:#ddd;">${detail.runtime} min</span>`;
+      }
+      if (detail.rtScore) {
+        const pct = parseInt(detail.rtScore);
+        meta.innerHTML += `<span class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:#333;color:${pct>=60?'#ef4444':'#888'};">${pct>=60?'🍅':'🤢'} ${detail.rtScore}</span>`;
+      }
+      if (detail.imdbScore) {
+        meta.innerHTML += `<span class="text-xs px-2 py-0.5 rounded-full font-semibold" style="background:#333;color:#f5c518;">IMDb ${detail.imdbScore}</span>`;
+      }
+      (detail.genres || []).forEach(g => {
+        meta.innerHTML += `<span class="text-xs px-2 py-0.5 rounded-full" style="background:#2a2a2a;color:#aaa;">${g}</span>`;
+      });
+
+      const wrap = document.getElementById('hc-backdrop-wrap');
+      if (detail.backdropPath) {
+        wrap.innerHTML = `<img class="hc-backdrop" src="https://image.tmdb.org/t/p/w780${detail.backdropPath}" loading="lazy">`;
+      } else {
+        wrap.innerHTML = `<div class="hc-backdrop-fallback">🎬</div>`;
+      }
+
+      positionHoverCard(e);
+      hoverCard.classList.add('visible');
+    }
+
+    function positionHoverCard(e) {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const w = 320, margin = 16;
+      let x = e.clientX + 20, y = e.clientY - 80;
+      if (x + w + margin > vw) x = e.clientX - w - 20;
+      if (y + 400 > vh) y = vh - 400 - margin;
+      if (y < margin) y = margin;
+      hoverCard.style.left = x + 'px';
+      hoverCard.style.top = y + 'px';
+    }
+
+    document.addEventListener('mousemove', e => {
+      if (hoverCard.classList.contains('visible')) positionHoverCard(e);
+    });
+
+    function hideHoverCard() {
+      hideTimer = setTimeout(() => hoverCard.classList.remove('visible'), 120);
+    }
+
+    function attachHover(card) {
+      card.addEventListener('mouseenter', e => showHoverCard(card, e));
+      card.addEventListener('mouseleave', hideHoverCard);
+    }
+
     async function fetchRatings(items) {
       await Promise.all(items.map(async item => {
         const id = item.id || item.tmdbId;
@@ -385,6 +496,8 @@
         try {
           const d = await fetch(`/arr-control/seerr/details?id=${id}&type=${type}`).then(x => x.json());
           if (!d.ok) { slot.textContent = ''; return; }
+          card._detail = d;
+          attachHover(card);
           let html = '';
           if (d.rtScore) {
             const pct = parseInt(d.rtScore);
