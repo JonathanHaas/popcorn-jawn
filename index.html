@@ -160,6 +160,24 @@
     </div>
   </div>
 
+  <!-- Request section -->
+  <div class="max-w-2xl mx-auto px-4 pt-6 pb-2">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="kernel"></span>
+      <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffffff;">Request a Movie</span>
+      <span class="kernel"></span>
+    </div>
+    <div class="flex gap-2">
+      <input type="text" id="req-input" placeholder="Title, description, vibe…"
+             class="flex-1 px-4 py-2 rounded-lg text-sm"
+             style="border:2px solid #8B0000; outline:none; font-family:'Inter',sans-serif;"
+             oninput="debouncedSearch()"
+             onkeydown="if(event.key==='Enter') searchMovies()">
+      <button onclick="searchMovies()" class="rent-btn px-4 py-2 text-sm">Search</button>
+    </div>
+    <div id="req-results" class="mt-3 space-y-2"></div>
+  </div>
+
   <!-- Content -->
   <div class="max-w-2xl mx-auto px-4 py-8">
 
@@ -206,16 +224,25 @@
       return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
+    function posterImg(path, size) {
+      return path
+        ? `<img src="https://image.tmdb.org/t/p/w92${path}" class="${size} object-cover rounded flex-shrink-0" style="border:1px solid #d1d5db;" loading="lazy">`
+        : `<div class="${size} flex-shrink-0 rounded flex items-center justify-center text-xl" style="background:#FFF0F0; border:1px solid #C8102E;">🎬</div>`;
+    }
+
     function activeCard(s) {
       return `
-        <div class="card">
+        <div class="card" ${s.tmdbId ? `data-result-id="${s.tmdbId}" data-type="movie"` : ''}>
           <div class="card-accent"></div>
-          <div class="p-5 flex items-center gap-4">
-            <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl" style="background:#FFF0F0; border:2px solid #C8102E;">🎬</div>
+          <div class="p-4 flex items-center gap-4">
+            ${posterImg(s.posterPath, 'w-12 h-16')}
             <div class="flex-1 min-w-0">
               <div class="slab text-lg leading-tight" style="color:#1a1a1a;">${s.title}</div>
               <div class="flex flex-wrap items-center gap-2 mt-1">
-                <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#FFF0F0; color:#C8102E;">${s.year}</span>
+                <span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#FFF0F0;color:#C8102E;">${s.year}</span>
+                <span class="rating-slot text-xs" style="color:#aaa;">…</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 mt-1">
                 <span class="text-xs" style="color:#666;">${s.size_human}</span>
                 <span class="text-xs" style="color:#bbb;">·</span>
                 <span class="text-xs" style="color:#666;">Added ${formatDate(s.created)}</span>
@@ -249,6 +276,7 @@
           document.getElementById('empty').classList.remove('hidden');
         } else {
           document.getElementById('shares').innerHTML = active.map(activeCard).join('');
+          fetchRatings(active.filter(s => s.tmdbId).map(s => ({id: s.tmdbId, mediaType: 'movie'})));
         }
         if (expired.length > 0) {
           document.getElementById('history-section').classList.remove('hidden');
@@ -282,6 +310,121 @@
     }
     // Fire at 78% of the 3s animation cycle = 2340ms, then every 3s
     setTimeout(() => { spawnKernels(); setInterval(spawnKernels, 3000); }, 2340);
+
+    // --- Movie request ---
+    let searchTimer = null;
+    function debouncedSearch() {
+      clearTimeout(searchTimer);
+      const q = document.getElementById('req-input').value.trim();
+      if (q.length < 2) { document.getElementById('req-results').innerHTML = ''; return; }
+      searchTimer = setTimeout(searchMovies, 350);
+    }
+
+    const STATUS_LABEL = {
+      0: null,
+      1: ['Unknown', '#999'],
+      2: ['Pending', '#d97706'],
+      3: ['Downloading', '#2563eb'],
+      4: ['Partly Available', '#16a34a'],
+      5: ['Available', '#16a34a'],
+    };
+
+    async function searchMovies() {
+      const q = document.getElementById('req-input').value.trim();
+      if (!q) return;
+      const box = document.getElementById('req-results');
+      box.innerHTML = '<p class="text-sm" style="color:#ffcccc;">Searching…</p>';
+      try {
+        const data = await fetch('/arr-control/seerr/search?q=' + encodeURIComponent(q)).then(r => r.json());
+        if (!data.ok || !data.results.length) {
+          box.innerHTML = '<p class="text-sm" style="color:#ffcccc;">No results found.</p>';
+          return;
+        }
+        box.innerHTML = data.results.map(r => {
+          const sl = STATUS_LABEL[r.status];
+          const badge = sl
+            ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#fff4; color:${sl[1]};">${sl[0]}</span>`
+            : '';
+          const btn = (r.status === 5 || r.status === 4)
+            ? `<span class="text-xs font-semibold px-3 py-1.5 rounded-lg" style="background:#16a34a20; color:#16a34a;">In Library</span>`
+            : `<button onclick="requestMovie(${r.id},'${r.mediaType}',this)" class="rent-btn flex-shrink-0 text-xs px-3 py-1.5">+ Request</button>`;
+          return `
+            <div class="card" data-result-id="${r.id}" data-type="${r.mediaType}">
+              <div class="card-accent"></div>
+              <div class="p-4 flex items-center gap-4">
+                ${posterImg(r.posterPath, 'w-12 h-16')}
+                <div class="flex-1 min-w-0">
+                  <div class="slab text-base leading-tight truncate" style="color:#1a1a1a;">${r.title}</div>
+                  <div class="flex items-center flex-wrap gap-2 mt-0.5">
+                    ${r.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#FFF0F0;color:#C8102E;">${r.year}</span>` : ''}
+                    <span class="text-xs capitalize" style="color:#888;">${r.mediaType}</span>
+                    ${badge}
+                    <span class="rating-slot text-xs" style="color:#aaa;">…</span>
+                  </div>
+                  ${r.overview ? `<p class="text-xs mt-1 leading-snug line-clamp-2" style="color:#555;">${r.overview}</p>` : ''}
+                </div>
+                ${btn}
+              </div>
+            </div>`;
+        }).join('');
+        fetchRatings(data.results);
+      } catch {
+        box.innerHTML = '<p class="text-sm" style="color:#ffcccc;">Search failed.</p>';
+      }
+    }
+
+    async function fetchRatings(items) {
+      await Promise.all(items.map(async item => {
+        const id = item.id || item.tmdbId;
+        const type = item.mediaType || 'movie';
+        if (!id) return;
+        const card = document.querySelector(`[data-result-id="${id}"]`);
+        if (!card) return;
+        const slot = card.querySelector('.rating-slot');
+        if (!slot) return;
+        try {
+          const d = await fetch(`/arr-control/seerr/details?id=${id}&type=${type}`).then(x => x.json());
+          if (!d.ok) { slot.textContent = ''; return; }
+          let html = '';
+          if (d.rtScore) {
+            const pct = parseInt(d.rtScore);
+            const tomato = pct >= 60 ? '🍅' : '🤢';
+            html += `<span style="color:${pct>=60?'#C8102E':'#888'}; font-weight:600;">${tomato} ${d.rtScore}</span>`;
+          }
+          if (d.imdbScore) {
+            html += `${html ? ' · ' : ''}<span style="color:#f5c518; font-weight:600;">IMDb ${d.imdbScore}</span>`;
+          }
+          if (!html && d.voteAverage) {
+            html = `<span style="color:#f59e0b; font-weight:600;">⭐ ${d.voteAverage.toFixed(1)}</span>`;
+          }
+          slot.innerHTML = html || '';
+        } catch { slot.textContent = ''; }
+      }));
+    }
+
+    async function requestMovie(id, type, btn) {
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        const res = await fetch('/arr-control/seerr/request', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({mediaId: id, mediaType: type}),
+        });
+        if (res.ok) {
+          btn.textContent = 'Queued 🍿';
+          btn.style.background = '#16a34a';
+        } else {
+          const d = await res.json();
+          btn.textContent = 'Error';
+          btn.disabled = false;
+          console.error(d);
+        }
+      } catch {
+        btn.textContent = 'Error';
+        btn.disabled = false;
+      }
+    }
   </script>
 </body>
 </html>

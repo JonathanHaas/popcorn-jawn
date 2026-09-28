@@ -16,6 +16,9 @@ RADARR_KEY = _cfg["radarr_key"]
 GOFILE_EXPIRY_DAYS = _cfg.get("gofile_expiry_days", 10)
 DATA_FILE = _dir / "shares.json"
 
+SEERR_URL = "http://localhost:5055"
+SEERR_KEY = "MTc4ODY0ODg0NTQ0MGM3N2M0OGIwLTFjNWUtNDU1MC04OWRmLWRjMWJhZjcwMWEyOQ=="
+
 
 def radarr(path, **params):
     import urllib.request, urllib.parse
@@ -58,6 +61,30 @@ def get_movie_title(movie_id):
     return movie.get("title", "Unknown"), movie.get("year", "")
 
 
+def seerr_lookup(title, year):
+    """Return (posterPath, tmdbId) for the best Jellyseerr movie match."""
+    import urllib.request, urllib.parse
+    req = urllib.request.Request(
+        f"{SEERR_URL}/api/v1/search?query={urllib.parse.quote(title)}",
+        headers={"X-Api-Key": SEERR_KEY},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=8) as r:
+            results = json.load(r).get("results", [])
+        movies = [r for r in results if r.get("mediaType") == "movie"]
+        # prefer exact year match
+        for res in movies:
+            res_year = int((res.get("releaseDate") or "")[:4] or 0)
+            if res_year == int(year or 0):
+                return res.get("posterPath"), res.get("id")
+        # fallback: first movie result
+        if movies:
+            return movies[0].get("posterPath"), movies[0].get("id")
+    except Exception:
+        pass
+    return None, None
+
+
 def main():
     data = load_data()
 
@@ -90,6 +117,7 @@ def main():
         title, year = get_movie_title(movie_id)
         size_bytes = os.path.getsize(filepath)
         size_human = f"{size_bytes / 1e9:.1f}G"
+        poster_path, tmdb_id = seerr_lookup(title, year)
 
         print(f"Uploading: {title} ({year}) [{size_human}]...")
         try:
@@ -104,6 +132,8 @@ def main():
             "radarr_movie_id": movie_id,
             "title": title,
             "year": year,
+            "tmdbId": tmdb_id,
+            "posterPath": poster_path,
             "gofile_link": link,
             "filepath": filepath,
             "size_human": size_human,
