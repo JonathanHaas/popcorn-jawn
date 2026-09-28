@@ -94,6 +94,16 @@
     .cd-genre { background: #1e1e1e; color: #888; font-weight: 400; }
     .cd-overview { font-size: 12px; color: #bbb; line-height: 1.55; margin: 0; }
 
+    #req-results:not(:empty) {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      border: 2px solid #8B0000;
+      background: #fff;
+    }
+    #req-results .card:first-child { border-radius: 8px 8px 0 0; }
+    #req-results .card:last-child  { border-radius: 0 0 8px 8px; }
+    #req-results .card:only-child  { border-radius: 8px; }
+    #req-results .card { border-left: none; border-right: none; border-top: none; border-radius: 0; }
+
     .card-accent {
       background: repeating-linear-gradient(
         90deg,
@@ -210,7 +220,7 @@
   </div>
 
   <!-- Request section -->
-  <div class="max-w-2xl mx-auto px-4 pt-6 pb-2">
+  <div class="max-w-2xl mx-auto px-4 pt-6 pb-2" style="position:relative;">
     <div class="flex items-center gap-3 mb-3">
       <span class="kernel"></span>
       <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffffff;">Request a Movie</span>
@@ -221,10 +231,11 @@
              class="flex-1 px-4 py-2 rounded-lg text-sm"
              style="border:2px solid #8B0000; outline:none; font-family:'Inter',sans-serif;"
              oninput="debouncedSearch()"
-             onkeydown="if(event.key==='Enter') searchMovies()">
+             onkeydown="if(event.key==='Enter') searchMovies()"
+             onblur="setTimeout(()=>{ document.getElementById('req-results').innerHTML=''; },200)">
       <button onclick="searchMovies()" class="rent-btn px-4 py-2 text-sm">Search</button>
     </div>
-    <div id="req-results" class="mt-3 space-y-2"></div>
+    <div id="req-results" style="position:absolute; left:1rem; right:1rem; top:100%; z-index:100; display:flex; flex-direction:column; gap:8px; max-height:70vh; overflow-y:auto; border-radius:10px; padding:0;"></div>
   </div>
 
   <!-- Content -->
