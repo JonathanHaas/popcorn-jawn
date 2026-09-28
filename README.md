@@ -1,8 +1,8 @@
 # 🍿 Popcorn Jawn
 
-A self-hosted media share page. When a movie finishes downloading in Radarr, it automatically gets uploaded to [gofile.io](https://gofile.io) and appears on a simple web page. Links expire after 10 days and drop off on their own — nothing to manage.
+A self-hosted media share page. When a movie finishes downloading in Radarr, it automatically gets uploaded to [gofile.io](https://gofile.io) and appears on a simple web page with poster thumbnails, Rotten Tomatoes scores, and IMDb ratings. Links expire after 10 days — nothing to manage.
 
-**Live at:** `popcorn.jawnhaas.xyz`
+Also includes a built-in movie request interface powered by Jellyseerr.
 
 ---
 
@@ -10,8 +10,9 @@ A self-hosted media share page. When a movie finishes downloading in Radarr, it 
 
 1. `sync.py` runs on a cron every 30 minutes
 2. It polls Radarr's history for completed downloads (since `sync_since` in `shares.json`)
-3. New movies get uploaded to gofile.io and written to `shares.json`
-4. `index.html` reads `shares.json` and renders active/expired shares
+3. New movies get looked up in Jellyseerr for poster/TMDB data, uploaded to gofile.io, and written to `shares.json`
+4. `index.html` reads `shares.json` and renders active/expired shares with posters and ratings
+5. The request search box queries Jellyseerr live via `arr-control` (keeps API keys server-side)
 
 ## Setup
 
@@ -19,6 +20,8 @@ A self-hosted media share page. When a movie finishes downloading in Radarr, it 
 
 - Python 3
 - Radarr running locally
+- Jellyseerr running locally (for posters, ratings, and movie requests)
+- [arr-control](https://github.com/JonathanHaas/arr-control) running locally (proxies Jellyseerr + OMDB API calls)
 - lighttpd (or any static file server)
 - `curl` for gofile uploads
 
@@ -52,7 +55,7 @@ To initialize without sharing your entire Radarr history, create it manually:
 ### Cron
 
 ```
-*/30 * * * * /home/haasj/shares/sync.py >> /home/haasj/shares/sync.log 2>&1
+*/30 * * * * ~/shares/sync.py >> ~/shares/sync.log 2>&1
 ```
 
 ### Web server
@@ -61,11 +64,13 @@ Point a vhost at the `shares/` directory with `index.html` as the default. Examp
 
 ```
 $HTTP["host"] == "popcorn.example.com" {
-    server.document-root = "/home/user/shares"
+    server.document-root = "~/shares"
     index-file.names = ( "index.html" )
     dir-listing.activate = "disable"
 }
 ```
+
+The `/arr-control/seerr/` endpoints need to be proxied to your arr-control instance (default port 5401). See [arr-control](https://github.com/JonathanHaas/arr-control) for setup.
 
 ---
 
