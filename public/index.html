@@ -62,12 +62,25 @@
       border-top: 1px solid #2a2a2a;
       transition: max-height 0.32s ease;
     }
+    .cd-backdrop-wrap {
+      width: 100%; height: 130px; overflow: hidden; flex-shrink: 0;
+      background: #1a1a1a;
+    }
+    @keyframes cd-shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .cd-backdrop-wrap.loading {
+      background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+      background-size: 800px 100%;
+      animation: cd-shimmer 1.4s infinite linear;
+    }
     .cd-backdrop {
       width: 100%; height: 130px;
       object-fit: cover; display: block;
     }
     .cd-backdrop-fallback {
-      width: 100%; height: 80px;
+      width: 100%; height: 130px;
       background: linear-gradient(135deg, #8B0000, #C8102E);
       display: flex; align-items: center; justify-content: center; font-size: 2rem;
     }
@@ -290,6 +303,7 @@
               Get It
             </a>
           </div>
+          ${s.tmdbId ? `<div class="card-panel"><div class="cd-backdrop-wrap loading"></div><div class="cd-body"></div></div>` : ''}
         </div>`;
     }
 
@@ -421,11 +435,9 @@
         try {
           const d = await fetch(`/arr-control/seerr/details?id=${id}&type=${type}`).then(x => x.json());
           if (!d.ok) { slot.textContent = ''; return; }
-          // Build accordion detail panel (in-flow, pushes cards below)
-          const prev = card.querySelector('.card-panel');
-          if (prev) prev.remove();
-          const panel = document.createElement('div');
-          panel.className = 'card-panel';
+          // Fill pre-rendered panel skeleton (space already reserved, no layout shift)
+          let panel = card.querySelector('.card-panel');
+          if (!panel) { panel = document.createElement('div'); panel.className = 'card-panel'; card.appendChild(panel); }
           let metaHtml = '';
           if (d.runtime) metaHtml += `<span class="cd-pill">${d.runtime}m</span>`;
           if (d.rtScore) {
@@ -435,15 +447,21 @@
           if (d.imdbScore) metaHtml += `<span class="cd-pill" style="color:#f5c518">★ ${d.imdbScore}</span>`;
           (d.genres||[]).forEach(g => { metaHtml += `<span class="cd-pill cd-genre">${g}</span>`; });
           const overview = (d.overview||'').length > 280 ? d.overview.slice(0,280)+'…' : (d.overview||'');
-          panel.innerHTML = `${d.backdropPath
-            ? `<img class="cd-backdrop" src="https://image.tmdb.org/t/p/w780${d.backdropPath}" loading="lazy">`
-            : `<div class="cd-backdrop-fallback">🎬</div>`}
-            <div class="cd-body">
-              ${d.tagline ? `<div class="cd-tagline">${d.tagline}</div>` : ''}
-              ${metaHtml ? `<div class="cd-meta">${metaHtml}</div>` : ''}
-              ${overview ? `<p class="cd-overview">${overview}</p>` : ''}
-            </div>`;
-          card.appendChild(panel);
+          const wrap = panel.querySelector('.cd-backdrop-wrap');
+          if (wrap) {
+            wrap.classList.remove('loading');
+            wrap.innerHTML = d.backdropPath
+              ? `<img class="cd-backdrop" src="https://image.tmdb.org/t/p/w780${d.backdropPath}" loading="eager">`
+              : `<div class="cd-backdrop-fallback">🎬</div>`;
+          } else {
+            panel.innerHTML = `<div class="cd-backdrop-wrap">${d.backdropPath
+              ? `<img class="cd-backdrop" src="https://image.tmdb.org/t/p/w780${d.backdropPath}" loading="eager">`
+              : `<div class="cd-backdrop-fallback">🎬</div>`}</div>`;
+          }
+          const body = panel.querySelector('.cd-body') || (() => { const b = document.createElement('div'); b.className = 'cd-body'; panel.appendChild(b); return b; })();
+          body.innerHTML = `${d.tagline ? `<div class="cd-tagline">${d.tagline}</div>` : ''}
+            ${metaHtml ? `<div class="cd-meta">${metaHtml}</div>` : ''}
+            ${overview ? `<p class="cd-overview">${overview}</p>` : ''}`;
           let html = '';
           if (d.rtScore) {
             const pct = parseInt(d.rtScore);
