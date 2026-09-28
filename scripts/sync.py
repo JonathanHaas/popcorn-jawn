@@ -9,12 +9,13 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 _dir = Path(__file__).parent
-_cfg = json.loads((_dir / "config.json").read_text())
+_root = _dir.parent
+_cfg = json.loads((_root / "config.json").read_text())
 
 RADARR_URL = _cfg["radarr_url"]
 RADARR_KEY = _cfg["radarr_key"]
 GOFILE_EXPIRY_DAYS = _cfg.get("gofile_expiry_days", 10)
-DATA_FILE = _dir / "shares.json"
+DATA_FILE = _root / "public" / "shares.json"
 
 SEERR_URL = "http://localhost:5055"
 SEERR_KEY = "MTc4ODY0ODg0NTQ0MGM3N2M0OGIwLTFjNWUtNDU1MC04OWRmLWRjMWJhZjcwMWEyOQ=="

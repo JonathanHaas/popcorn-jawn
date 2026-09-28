@@ -1,5 +1,5 @@
 config.json
-shares.json
 sync.log
-og.png
+public/shares.json
+public/og.png
 __pycache__/
