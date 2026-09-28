@@ -94,6 +94,17 @@
     .cd-genre { background: #1e1e1e; color: #888; font-weight: 400; }
     .cd-overview { font-size: 12px; color: #bbb; line-height: 1.55; margin: 0; }
 
+    .card-pending {
+      opacity: 0.55;
+      filter: grayscale(0.4);
+      border-color: #aaa;
+    }
+    .card-pending .card-accent {
+      background: repeating-linear-gradient(
+        90deg, #aaa 0px, #aaa 10px, #fff 10px, #fff 20px
+      );
+    }
+
     #req-results:not(:empty) {
       box-shadow: 0 12px 40px rgba(0,0,0,0.45);
       border: 2px solid #8B0000;
@@ -243,6 +254,7 @@
   <!-- Content -->
   <div class="max-w-2xl mx-auto px-4 py-8">
 
+    <div id="pending" class="space-y-4 mb-4"></div>
     <div id="shares" class="space-y-4"></div>
     <div id="empty" class="hidden text-center py-16">
       <div class="text-4xl mb-3">🎞️</div>
@@ -331,12 +343,42 @@
         </div>`;
     }
 
+    function getPending() {
+      try { return JSON.parse(localStorage.getItem('popcorn_pending') || '[]'); } catch { return []; }
+    }
+    function savePending(list) {
+      localStorage.setItem('popcorn_pending', JSON.stringify(list));
+    }
+
+    function renderPendingCards(activeShares) {
+      const activeTmdbIds = new Set((activeShares||[]).map(s => String(s.tmdbId)));
+      let pending = getPending().filter(p => !activeTmdbIds.has(String(p.id)));
+      savePending(pending);
+      const el = document.getElementById('pending');
+      el.innerHTML = pending.map(p => `
+        <div class="card card-pending" data-pending-id="${p.id}">
+          <div class="card-accent"></div>
+          <div class="p-4 flex items-center gap-4">
+            ${posterImg(p.posterPath, 'w-12 h-16')}
+            <div class="flex-1 min-w-0">
+              <div class="slab text-lg leading-tight" style="color:#555;">${p.title}</div>
+              <div class="flex flex-wrap items-center gap-2 mt-1">
+                ${p.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#f0f0f0;color:#888;">${p.year}</span>` : ''}
+                <span class="text-xs font-semibold" style="color:#999;">⏳ Requested — waiting for download</span>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
     async function load() {
       try {
         const data = await fetch('shares.json?t=' + Date.now()).then(r => r.json());
         const shares = data.shares || [];
         const active = shares.filter(s => daysUntil(s.expires) > 0).reverse();
         const expired = shares.filter(s => daysUntil(s.expires) <= 0).reverse();
+
+        renderPendingCards(active);
 
         if (active.length === 0) {
           document.getElementById('empty').classList.remove('hidden');
@@ -498,6 +540,11 @@
     async function requestMovie(id, type, btn) {
       btn.disabled = true;
       btn.textContent = '…';
+      // Grab card info for the pending display
+      const card = btn.closest('.card');
+      const title = card?.querySelector('.slab')?.textContent?.trim() || '';
+      const year = card?.querySelector('[style*="FFF0F0"]')?.textContent?.trim() || '';
+      const posterImg = card?.querySelector('img')?.src?.match(/w92(.+)$/)?.[1] || null;
       try {
         const res = await fetch('/arr-control/seerr/request', {
           method: 'POST',
@@ -507,6 +554,13 @@
         if (res.ok) {
           btn.textContent = 'Queued 🍿';
           btn.style.background = '#16a34a';
+          // Save to pending list and show greyed-out card in Now Showing
+          const pending = getPending().filter(p => String(p.id) !== String(id));
+          pending.unshift({id, type, title, year, posterPath: posterImg, requestedAt: Date.now()});
+          savePending(pending);
+          renderPendingCards(null);
+          // Close dropdown
+          setTimeout(() => { document.getElementById('req-results').innerHTML = ''; document.getElementById('req-input').value = ''; }, 800);
         } else {
           const d = await res.json();
           btn.textContent = 'Error';
