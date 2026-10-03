@@ -136,6 +136,12 @@ def sync_sonarr(data):
         season_num = episode.get("seasonNumber", 0)
         ep_num = episode.get("episodeNumber", 0)
         ep_title = episode.get("title", "")
+        ep_overview = episode.get("overview", "")
+        images = series.get("images", [])
+        poster_url = next(
+            (img.get("remoteUrl") for img in images if img.get("coverType") == "poster" and img.get("remoteUrl")),
+            None
+        )
 
         size_bytes = os.path.getsize(filepath)
         size_human = f"{size_bytes/1e9:.1f}G" if size_bytes >= 1e9 else f"{size_bytes/1e6:.0f}M"
@@ -158,6 +164,8 @@ def sync_sonarr(data):
             "season": season_num,
             "episode": ep_num,
             "episode_title": ep_title,
+            "episode_overview": ep_overview,
+            "posterPath": poster_url,
             "gofile_link": link,
             "filepath": filepath,
             "size_human": size_human,
