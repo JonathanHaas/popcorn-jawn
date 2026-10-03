@@ -12,8 +12,9 @@ Includes a full request interface for movies and TV shows powered by Jellyseerr.
 
 - **Now Showing** — active shares with posters, file sizes, ratings, and days-remaining badges
 - **Movie requests** — search and request movies directly; appears as a pending card while downloading
-- **TV show requests** — season/episode accordion picker: expand any season to see episode names, check/uncheck individual episodes, request selected seasons
-- **Activity drawer** — hamburger menu shows active SABnzbd downloads with progress/speed, recently imported TV episodes (Sonarr history), in-progress TV downloads, and the full Now Sharing list
+- **TV show requests** — season/episode accordion picker: expand any season to see episode names, check/uncheck individual episodes, request selected seasons; requested episodes auto-upload to gofile.io on import
+- **TV episode cards** — downloaded episodes appear as Now Showing cards with episode badge (`S01E01`), episode title, synopsis (2 lines), and a Get It download link
+- **Activity drawer** — hamburger menu shows active SABnzbd downloads with progress/speed, recently imported TV episodes (Sonarr history) with gofile download links, in-progress TV downloads, and the full Now Sharing list — all items link to their download or Jellyfin page
 - **Pending cards** — requested items show greyed-out in Now Showing until the cron picks them up; dismissable via ×
 - **Past Showings** — expired shares remain visible in a history section
 - **Adult content blocked** — at both search and request endpoints
