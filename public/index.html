@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    html, body { overflow-x: hidden; }
     body { background-color: #C8102E; }
 
     .stripe-border {
@@ -57,7 +58,8 @@
       border-top: none;
       transition: max-height 0.32s ease, border-top 0s 0.32s;
     }
-    .card--compact:hover .card-panel {
+    .card--compact:hover .card-panel,
+    .card--compact.is-expanded .card-panel {
       max-height: 420px;
       border-top: 1px solid #2a2a2a;
       transition: max-height 0.32s ease;
@@ -109,7 +111,8 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.45);
       border: 2px solid #8B0000;
       border-radius: 10px;
-      overflow: visible;
+      overflow: hidden;
+      box-sizing: border-box;
     }
     #req-results .card { border: none; border-bottom: 1px solid #f0e0e0; border-radius: 0; overflow: hidden; }
     #req-results .card:first-child { border-radius: 8px 8px 0 0; }
@@ -214,11 +217,35 @@
 </head>
 <body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
 
+  <!-- Menu overlay -->
+  <div id="menu-overlay" onclick="closeMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;"></div>
+
+  <!-- Activity drawer -->
+  <div id="menu-drawer" style="display:none;position:fixed;right:0;top:0;bottom:0;width:min(340px,100vw);background:#fff;z-index:201;overflow-y:auto;box-shadow:-6px 0 32px rgba(0,0,0,0.25);transition:transform 0.2s;">
+    <div style="background:#C8102E;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
+      <span class="slab" style="color:#fff;font-size:1.1rem;">Activity</span>
+      <button onclick="closeMenu()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+    </div>
+    <div style="padding:18px 20px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📥 Downloads</div>
+      <div id="menu-dl">Loading…</div>
+    </div>
+    <div style="border-top:2px solid #FFF0F0;padding:18px 20px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📤 Now Sharing</div>
+      <div id="menu-ul"></div>
+    </div>
+  </div>
+
   <!-- Header stripe top -->
   <div class="stripe-border h-10"></div>
 
   <!-- Header box -->
-  <div style="background:#ffffff;" class="px-6 py-6 text-center">
+  <div style="background:#ffffff;position:relative;" class="px-6 py-6 text-center">
+    <button onclick="toggleMenu()" id="menu-btn" title="Activity" style="position:absolute;top:18px;right:18px;background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px;">
+      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
+      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
+      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
+    </button>
     <div class="text-5xl mb-1">
       <span class="popcorn-wrap" id="popcorn-wrap">
         <span class="popcorn-pop">🍿</span>
@@ -239,13 +266,13 @@
   <div class="max-w-2xl mx-auto px-4 pt-6 pb-2" style="position:relative;">
     <div class="flex items-center gap-3 mb-3">
       <span class="kernel"></span>
-      <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffffff;">Request a Movie</span>
+      <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffffff;">Request Something</span>
       <span class="kernel"></span>
     </div>
     <div class="flex gap-2">
       <input type="text" id="req-input" placeholder="Title, description, vibe…"
              class="flex-1 px-4 py-2 rounded-lg text-sm"
-             style="border:2px solid #8B0000; outline:none; font-family:'Inter',sans-serif;"
+             style="border:2px solid #8B0000; outline:none; font-family:'Inter',sans-serif; font-size:16px;"
              oninput="debouncedSearch()"
              onkeydown="if(event.key==='Enter') searchMovies()"
              onblur="setTimeout(()=>{ document.getElementById('req-results').innerHTML=''; },200)">
@@ -257,6 +284,7 @@
   <!-- Content -->
   <div class="max-w-2xl mx-auto px-4 py-8">
 
+    <div id="season-picker" class="mb-4"></div>
     <div id="pending" class="space-y-4 mb-4"></div>
     <div id="shares" class="space-y-4"></div>
     <div id="empty" class="hidden text-center py-16">
@@ -278,10 +306,18 @@
 
   <!-- Footer band -->
   <div style="background:#ffffff; border-top:2px solid #8B0000; border-bottom:2px solid #8B0000;" class="text-center py-3">
-    <span style="font-family:'Alfa Slab One',serif; font-size:1.1rem; color:#009A44; letter-spacing:0.06em;">🦅 Go Birds</span>
+    <span style="font-family:'Alfa Slab One',serif; font-size:1.1rem; color:#009A44; letter-spacing:0.06em;">🦅 Go Birds!</span>
   </div>
 
   <script>
+    // Touch tap to expand compact search cards on mobile
+    document.addEventListener('click', function(e) {
+      const card = e.target.closest('.card--compact');
+      if (!card) return;
+      if (e.target.closest('button, a')) return;
+      card.classList.toggle('is-expanded');
+    });
+
     function daysUntil(iso) {
       return Math.ceil((new Date(iso) - new Date()) / 86400000);
     }
@@ -346,6 +382,10 @@
     function savePending(list) {
       localStorage.setItem('popcorn_pending', JSON.stringify(list));
     }
+    function dismissPending(id) {
+      savePending(getPending().filter(p => String(p.id) !== String(id)));
+      document.querySelector(`[data-pending-id="${id}"]`)?.remove();
+    }
 
     function renderPendingCards(activeShares) {
       const activeTmdbIds = new Set((activeShares||[]).map(s => String(s.tmdbId)));
@@ -361,9 +401,10 @@
               <div class="slab text-lg leading-tight" style="color:#555;">${p.title}</div>
               <div class="flex flex-wrap items-center gap-2 mt-1">
                 ${p.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#f0f0f0;color:#888;">${p.year}</span>` : ''}
-                <span class="text-xs font-semibold" style="color:#999;">⏳ Requested — waiting for download</span>
+                <span class="text-xs font-semibold" style="color:#999;">⏳ Requested${p.seasonLabel ? ' · ' + p.seasonLabel : ''} — waiting for download</span>
               </div>
             </div>
+            <button onclick="dismissPending(${p.id})" title="Dismiss" style="color:#bbb;font-size:1.2rem;line-height:1;background:none;border:none;cursor:pointer;padding:4px 8px;" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#bbb'">×</button>
           </div>
         </div>`).join('');
     }
@@ -373,6 +414,7 @@
         const data = await fetch('shares.json?t=' + Date.now()).then(r => r.json());
         const shares = data.shares || [];
         const active = shares.filter(s => daysUntil(s.expires) > 0).reverse();
+        _activeShares = active;
         const expired = shares.filter(s => daysUntil(s.expires) <= 0).reverse();
 
         renderPendingCards(active);
@@ -452,7 +494,9 @@
             : '';
           const btn = (r.status === 5 || r.status === 4)
             ? `<span class="text-xs font-semibold px-3 py-1.5 rounded-lg" style="background:#16a34a20; color:#16a34a;">In Library</span>`
-            : `<button onclick="requestMovie(${r.id},'${r.mediaType}',this)" class="rent-btn flex-shrink-0 text-xs px-3 py-1.5">+ Request</button>`;
+            : r.mediaType === 'tv'
+              ? `<button onclick="showSeasons(${r.id},this)" class="rent-btn flex-shrink-0 text-xs px-3 py-1.5">📺 Seasons</button>`
+              : `<button onclick="requestMovie(${r.id},'${r.mediaType}',this)" class="rent-btn flex-shrink-0 text-xs px-3 py-1.5">+ Request</button>`;
           return `
             <div class="card card--compact" data-result-id="${r.id}" data-type="${r.mediaType}">
               <div class="card-accent"></div>
@@ -532,6 +576,208 @@
           slot.innerHTML = html || '';
         } catch { slot.textContent = ''; }
       }));
+    }
+
+    let _spData = null;
+
+    async function showSeasons(id, btn) {
+      const card = btn.closest('.card');
+      _spData = {
+        id,
+        title: card.querySelector('.slab')?.textContent?.trim() || '',
+        year: card.querySelector('[style*="FFF0F0"]')?.textContent?.trim() || '',
+        posterPath: card.querySelector('img')?.src?.match(/w92(.+)$/)?.[1] || null,
+      };
+      document.getElementById('req-results').innerHTML = '';
+      document.getElementById('req-input').value = '';
+
+      const picker = document.getElementById('season-picker');
+      picker.innerHTML = `
+        <div class="card" style="border-color:#333;background:#111;">
+          <div class="card-accent" style="background:repeating-linear-gradient(90deg,#333 0,#333 10px,#1a1a1a 10px,#1a1a1a 20px);"></div>
+          <div class="p-4 flex items-center gap-4">
+            ${posterImg(_spData.posterPath, 'w-12 h-16')}
+            <div class="flex-1 min-w-0">
+              <div class="slab text-lg leading-tight" style="color:#eee;">${_spData.title}</div>
+              ${_spData.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block" style="background:#222;color:#888;">${_spData.year}</span>` : ''}
+            </div>
+            <button onclick="clearSeasonPicker()" style="color:#555;font-size:1.3rem;line-height:1;background:none;border:none;cursor:pointer;padding:4px 8px;" onmouseover="this.style.color='#aaa'" onmouseout="this.style.color='#555'">×</button>
+          </div>
+          <div class="sp-body" style="padding:0 16px 16px;">
+            <p style="color:#666;font-size:12px;">Loading…</p>
+          </div>
+        </div>`;
+
+      const body = picker.querySelector('.sp-body');
+      try {
+        const d = await fetch(`/arr-control/seerr/seasons?id=${id}`).then(r => r.json());
+        if (!d.ok || !d.seasons.length) {
+          body.innerHTML = '<p style="color:#f87171;font-size:12px;">Could not load seasons.</p>'; return;
+        }
+        body.innerHTML = `
+          <div class="sp-seasons" style="margin-bottom:12px;">
+            ${d.seasons.map(s => `
+              <div class="sp-season" data-season="${s.number}" style="border-bottom:1px solid #1e1e1e;">
+                <div style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;" onclick="spToggleSeason(${s.number},${id},this)">
+                  <span class="sp-chev" style="color:#555;font-size:10px;width:12px;text-align:center;">▶</span>
+                  <input type="checkbox" class="sp-season-cb" data-season="${s.number}" style="accent-color:#C8102E;width:15px;height:15px;flex-shrink:0;" checked onclick="event.stopPropagation();spSeasonCheck(${s.number},this)">
+                  <span style="color:#eee;font-size:13px;font-weight:600;flex:1;">${s.name}</span>
+                  <span style="color:#555;font-size:11px;">${s.episodeCount} eps</span>
+                </div>
+                <div class="sp-eps" style="display:none;padding-bottom:4px;"></div>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="requestTV(this)" class="rent-btn text-xs px-3 py-1.5">Request Selected</button>
+          </div>`;
+      } catch {
+        body.innerHTML = '<p style="color:#f87171;font-size:12px;">Error loading seasons.</p>';
+      }
+    }
+
+    async function spToggleSeason(seasonNum, tvId, headerEl) {
+      const seasonDiv = headerEl.closest('.sp-season');
+      const epsDiv = seasonDiv.querySelector('.sp-eps');
+      const chev = seasonDiv.querySelector('.sp-chev');
+      const open = epsDiv.style.display !== 'none';
+      epsDiv.style.display = open ? 'none' : 'block';
+      chev.textContent = open ? '▶' : '▼';
+      if (open || epsDiv.dataset.loaded) return;
+      epsDiv.dataset.loaded = '1';
+      epsDiv.innerHTML = '<p style="color:#555;font-size:11px;padding:4px 0 4px 20px;">Loading episodes…</p>';
+      try {
+        const d = await fetch(`/arr-control/seerr/episodes?id=${tvId}&season=${seasonNum}`).then(r => r.json());
+        if (!d.ok || !d.episodes.length) { epsDiv.innerHTML = '<p style="color:#555;font-size:11px;padding-left:20px;">No episodes.</p>'; return; }
+        epsDiv.innerHTML = d.episodes.map(ep => `
+          <label style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 20px;cursor:pointer;">
+            <input type="checkbox" class="sp-ep-cb" data-season="${seasonNum}" data-ep="${ep.number}" style="accent-color:#C8102E;width:13px;height:13px;flex-shrink:0;" checked onchange="spSyncSeasonCb(${seasonNum})">
+            <span style="color:#888;font-size:11px;min-width:28px;flex-shrink:0;">E${String(ep.number).padStart(2,'0')}</span>
+            <span style="color:#ccc;font-size:12px;">${ep.name}</span>
+          </label>`).join('');
+      } catch { epsDiv.innerHTML = '<p style="color:#f87171;font-size:11px;padding-left:20px;">Error.</p>'; }
+    }
+
+    function spSeasonCheck(seasonNum, cb) {
+      const epsDiv = document.querySelector(`.sp-season[data-season="${seasonNum}"] .sp-eps`);
+      epsDiv?.querySelectorAll('.sp-ep-cb').forEach(e => e.checked = cb.checked);
+    }
+
+    function spSyncSeasonCb(seasonNum) {
+      const epBoxes = [...(document.querySelector(`.sp-season[data-season="${seasonNum}"] .sp-eps`)?.querySelectorAll('.sp-ep-cb') || [])];
+      if (!epBoxes.length) return;
+      const cb = document.querySelector(`.sp-season-cb[data-season="${seasonNum}"]`);
+      if (cb) cb.checked = epBoxes.some(e => e.checked);
+    }
+
+    function clearSeasonPicker() {
+      document.getElementById('season-picker').innerHTML = '';
+      _spData = null;
+    }
+
+    async function requestTV(btn) {
+      if (!_spData) return;
+      // Collect seasons: any season whose season-cb is checked (or has ≥1 ep checked)
+      const seasonDivs = [...document.querySelectorAll('.sp-season')];
+      const seasons = seasonDivs
+        .filter(sd => {
+          const epBoxes = [...sd.querySelectorAll('.sp-ep-cb')];
+          // If episodes loaded, use ep-level; otherwise use season checkbox
+          return epBoxes.length ? epBoxes.some(e => e.checked) : sd.querySelector('.sp-season-cb')?.checked;
+        })
+        .map(sd => +sd.dataset.season);
+      if (!seasons.length) {
+        btn.textContent = 'Pick something';
+        setTimeout(() => btn.textContent = 'Request Selected', 1500);
+        return;
+      }
+      btn.disabled = true; btn.textContent = '…';
+      const {id, title, year, posterPath} = _spData;
+      const seasonLabel = seasons.length === 1 ? `S${String(seasons[0]).padStart(2,'0')}` : `${seasons.length} seasons`;
+      try {
+        const res = await fetch('/arr-control/seerr/request', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({mediaId: id, mediaType: 'tv', seasons}),
+        });
+        if (res.ok) {
+          btn.textContent = 'Queued 🍿'; btn.style.background = '#16a34a';
+          const pending = getPending().filter(p => String(p.id) !== String(id));
+          pending.unshift({id, type: 'tv', title, year, posterPath, seasons, seasonLabel, requestedAt: Date.now()});
+          savePending(pending);
+          renderPendingCards(null);
+          setTimeout(() => clearSeasonPicker(), 1000);
+        } else {
+          btn.textContent = 'Error'; btn.disabled = false;
+        }
+      } catch { btn.textContent = 'Error'; btn.disabled = false; }
+    }
+
+    // --- Activity drawer ---
+    let _menuOpen = false, _menuTimer = null, _activeShares = [];
+
+    function toggleMenu() { _menuOpen ? closeMenu() : openMenu(); }
+
+    function openMenu() {
+      _menuOpen = true;
+      document.getElementById('menu-overlay').style.display = 'block';
+      document.getElementById('menu-drawer').style.display = 'block';
+      populateUploads();
+      loadMenuDownloads();
+      _menuTimer = setInterval(loadMenuDownloads, 12000);
+    }
+
+    function closeMenu() {
+      _menuOpen = false;
+      document.getElementById('menu-overlay').style.display = 'none';
+      document.getElementById('menu-drawer').style.display = 'none';
+      clearInterval(_menuTimer);
+    }
+
+    function populateUploads() {
+      const el = document.getElementById('menu-ul');
+      if (!_activeShares.length) { el.innerHTML = '<p style="color:#aaa;font-size:12px;">Nothing sharing right now.</p>'; return; }
+      el.innerHTML = _activeShares.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #FFF0F0;">
+          ${s.posterPath ? `<img src="https://image.tmdb.org/t/p/w92${s.posterPath}" style="width:28px;height:38px;object-fit:cover;border-radius:3px;flex-shrink:0;">` : '<div style="width:28px;height:38px;background:#FFF0F0;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🎬</div>'}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
+            <div style="font-size:11px;color:#888;">${s.year} · ${s.size_human} · ${expiryBadge(s.expires).replace(/<[^>]+>/g,'')}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    async function loadMenuDownloads() {
+      const el = document.getElementById('menu-dl');
+      try {
+        const d = await fetch('/arr-control/downloads').then(r => r.json());
+        if (!d.ok) { el.innerHTML = '<span style="color:#f87171;font-size:12px;">Unavailable</span>'; return; }
+        let html = '';
+        if (d.paused) html += '<div style="color:#d97706;font-size:12px;font-weight:600;margin-bottom:8px;">⏸ Queue paused</div>';
+        else if (d.active.length && d.speed !== '0') html += `<div style="color:#16a34a;font-size:11px;margin-bottom:8px;">↓ ${(+d.speed/1024).toFixed(1)} MB/s</div>`;
+        if (!d.active.length) {
+          html += '<p style="color:#aaa;font-size:12px;">No active downloads</p>';
+        } else {
+          html += d.active.map(s => `
+            <div style="margin-bottom:12px;">
+              <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;" title="${s.name}">${s.name}</div>
+              <div style="background:#f0e0e0;border-radius:4px;height:5px;">
+                <div style="background:#C8102E;height:5px;border-radius:4px;width:${s.pct}%;transition:width .5s;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:3px;">
+                <span>${s.pct}%</span><span>${d.paused ? '—' : s.eta}</span>
+              </div>
+            </div>`).join('');
+        }
+        if (d.recent.length) {
+          html += '<div style="margin-top:4px;padding-top:12px;border-top:1px solid #f5f5f5;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ccc;margin-bottom:8px;">Recent</div>';
+          html += d.recent.map(s => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #fafafa;">
+              <span style="font-size:12px;color:#666;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</span>
+              <span style="font-size:11px;font-weight:600;flex-shrink:0;margin-left:8px;color:${s.status==='Completed'?'#16a34a':'#aaa'};">${s.status}</span>
+            </div>`).join('');
+        }
+        el.innerHTML = html;
+      } catch { el.innerHTML = '<span style="color:#f87171;font-size:12px;">Error</span>'; }
     }
 
     async function requestMovie(id, type, btn) {
