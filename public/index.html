@@ -231,6 +231,10 @@
       <div id="menu-dl">Loading…</div>
     </div>
     <div style="border-top:2px solid #FFF0F0;padding:18px 20px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📺 TV Episodes</div>
+      <div id="menu-tv"></div>
+    </div>
+    <div style="border-top:2px solid #FFF0F0;padding:18px 20px;">
       <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📤 Now Sharing</div>
       <div id="menu-ul"></div>
     </div>
@@ -777,6 +781,38 @@
             </div>`).join('');
         }
         el.innerHTML = html;
+
+        // TV section
+        const tvEl = document.getElementById('menu-tv');
+        if (tvEl) {
+          let tvHtml = '';
+          if (d.tv_queue?.length) {
+            tvHtml += '<div style="margin-bottom:10px;">';
+            tvHtml += d.tv_queue.map(e => `
+              <div style="margin-bottom:10px;">
+                <div style="font-size:12px;font-weight:600;color:#333;">${e.show}</div>
+                <div style="font-size:11px;color:#888;margin-bottom:3px;">S${String(e.season).padStart(2,'0')}E${String(e.episode).padStart(2,'0')}</div>
+                <div style="background:#f0e0e0;border-radius:4px;height:5px;">
+                  <div style="background:#C8102E;height:5px;border-radius:4px;width:${e.pct}%;transition:width .5s;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:3px;">
+                  <span>${e.pct}%</span><span>${e.eta || ''}</span>
+                </div>
+              </div>`).join('');
+            tvHtml += '</div>';
+          }
+          if (d.tv_recent?.length) {
+            if (d.tv_queue?.length) tvHtml += '<div style="border-top:1px solid #f5f5f5;margin-bottom:8px;padding-top:8px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ccc;">Recent</div>';
+            tvHtml += d.tv_recent.map(e => `
+              <div style="display:flex;align-items:baseline;gap:6px;padding:4px 0;border-bottom:1px solid #fafafa;">
+                <span style="font-size:12px;font-weight:600;color:#555;flex-shrink:0;">${e.show}</span>
+                <span style="font-size:11px;color:#bbb;flex-shrink:0;">S${String(e.season).padStart(2,'0')}E${String(e.episode).padStart(2,'0')}</span>
+                <span style="font-size:11px;color:#ddd;margin-left:auto;flex-shrink:0;">${e.date}</span>
+              </div>`).join('');
+          }
+          if (!tvHtml) tvHtml = '<p style="color:#aaa;font-size:12px;">No TV episodes yet.</p>';
+          tvEl.innerHTML = tvHtml;
+        }
       } catch { el.innerHTML = '<span style="color:#f87171;font-size:12px;">Error</span>'; }
     }
 
