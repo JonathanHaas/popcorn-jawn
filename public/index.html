@@ -494,48 +494,28 @@
       }
     }
 
-    // Viewport bats
-    function startBats() {
+    // Generic holiday floater (falls from top, drifts sideways)
+    function startFloater(emojis) {
       let stopped = false;
       window._floaterStop = () => { stopped = true; };
-      function launchBat() {
+      function spawn() {
         if (stopped) return;
-        const t = THEMES[_activeTheme] || THEMES.halloween;
-        const floatEmojis = t.floater === 'bats' ? ['🦇','👻'] : ['🦇','👻'];
-        const bat = document.createElement('span');
-        bat.textContent = floatEmojis[Math.floor(Math.random() * floatEmojis.length)];
-        bat.style.cssText = 'position:fixed;pointer-events:none;z-index:9;font-size:1.4rem;will-change:transform;transition:none;';
-        const edge = Math.floor(Math.random() * 4);
-        const W = window.innerWidth, H = window.innerHeight;
-        let x, y, tx, ty;
-        if (edge === 0) { x = -30; y = Math.random()*H; tx = W+30; ty = Math.random()*H; }
-        else if (edge === 1) { x = W+30; y = Math.random()*H; tx = -30; ty = Math.random()*H; }
-        else if (edge === 2) { x = Math.random()*W; y = -30; tx = Math.random()*W; ty = H+30; }
-        else { x = Math.random()*W; y = H+30; tx = Math.random()*W; ty = -30; }
-        bat.style.left = x + 'px';
-        bat.style.top  = y + 'px';
-        if (tx < x) bat.style.transform = 'scaleX(-1)';
-        document.body.appendChild(bat);
-        const dur = 4000 + Math.random() * 5000;
-        const start = performance.now();
-        function frame(now) {
-          if (stopped) { bat.remove(); return; }
-          const t = Math.min((now - start) / dur, 1);
-          const perp = Math.sin(t * Math.PI * 4) * 18;
-          const dx = tx - x, dy = ty - y;
-          const len = Math.hypot(dx, dy) || 1;
-          const nx = -dy/len, ny = dx/len;
-          const cx = x + dx*t + nx*perp;
-          const cy = y + dy*t + ny*perp;
-          bat.style.left = cx + 'px';
-          bat.style.top  = cy + 'px';
-          if (t < 1) requestAnimationFrame(frame);
-          else bat.remove();
-        }
-        requestAnimationFrame(frame);
-        setTimeout(launchBat, 1200 + Math.random() * 2800);
+        const el = document.createElement('span');
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const size = 0.9 + Math.random() * 0.8;
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:1;font-size:${size}rem;left:${Math.random()*window.innerWidth}px;top:-30px;opacity:0.75;`;
+        document.body.appendChild(el);
+        const dur = 4500 + Math.random() * 5000;
+        const drift = (Math.random() - 0.5) * 220;
+        const rot = (Math.random() - 0.5) * 360;
+        el.animate([
+          { transform: `translate(0,0) rotate(0deg)`, opacity: 0.75 },
+          { transform: `translate(${drift}px,${window.innerHeight+40}px) rotate(${rot}deg)`, opacity: 0 }
+        ], { duration: dur, easing: 'linear', fill: 'forwards' });
+        setTimeout(() => el.remove(), dur + 100);
+        setTimeout(spawn, 500 + Math.random() * 900);
       }
-      for (let i = 0; i < 3; i++) setTimeout(launchBat, i * 600);
+      for (let i = 0; i < 2; i++) setTimeout(spawn, i * 400);
     }
 
     // Pumpkin burst from popcorn header
@@ -825,12 +805,12 @@
     }
 
     // ---- Seasonal Theme Engine ----
-        // THEMES_START (auto-generated from themes.json — edit themes.json, not this block)
+            // THEMES_START (auto-generated from themes.json — edit themes.json, not this block)
     const THEMES = {
       halloween: {
         range: [[10,1],[10,31]],
         title: "Ghoulish Jawn",
-        headerEmoji: "🍿",
+        headerEmoji: "🎃",
         taglineEmojiL: "🎃", taglineEmojiR: "🎃",
         tagline: "Now Haunting · Fresh Frights · Made with 🧡 in Philadelphia",
         summonEmojiL: "🕯️", summonEmojiR: "🕯️",
@@ -840,13 +820,14 @@
         footerText: "🦅 Go Birds! 🎃", footerTextColor: "#009A44",
         og: 'og-halloween.png',
         css: {"--bg": "#0d0208", "--glow-top": "#3d0800", "--glow-bottom": "#1a0a2e", "--accent": "#f97316", "--accent-dark": "#c2410c", "--accent-light": "#fdba74", "--header-bg": "#1a0a00", "--stripe-a": "#f97316", "--stripe-b": "#1a0a00", "--card-border": "#c2410c", "--footer-bg": "#ffffff", "--footer-border": "#c2410c", "--footer-text": "#009A44"},
-        floater: "bats",
+        floater: "floater",
+        floaterEmoji: ["🦇", "👻", "🕷️", "🦇", "👻"],
         deleteParticles: ["💨", "💨", "🎃", "👻", "🦇", "💀", "🕷️", "⭐", "✨"],
       },
       thanksgiving: {
         range: [[11,1],[11,30]],
         title: "Gobbler Jawn",
-        headerEmoji: "🍿",
+        headerEmoji: "🦃",
         taglineEmojiL: "🦃", taglineEmojiR: "🍂",
         tagline: "Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia",
         summonEmojiL: "🌽", summonEmojiR: "🌽",
@@ -856,13 +837,14 @@
         footerText: "🦅 Go Birds! 🦃", footerTextColor: "#92400e",
         og: 'og-thanksgiving.png',
         css: {"--bg": "#0f0a00", "--glow-top": "#3d1f00", "--glow-bottom": "#1a0a00", "--accent": "#d97706", "--accent-dark": "#b45309", "--accent-light": "#fcd34d", "--header-bg": "#1c1000", "--stripe-a": "#d97706", "--stripe-b": "#1c1000", "--card-border": "#b45309", "--footer-bg": "#fffbeb", "--footer-border": "#b45309", "--footer-text": "#92400e"},
-        floater: "leaves",
+        floater: "floater",
+        floaterEmoji: ["🍂", "🍁", "🌽", "🍂", "🍁"],
         deleteParticles: ["🍂", "🍁", "🌽", "🦃", "🍂", "🍁", "✨", "🌾"],
       },
       hanukkah: {
         range: [[12,10],[12,22]],
         title: "Latke Jawn",
-        headerEmoji: "🍿",
+        headerEmoji: "🕎",
         taglineEmojiL: "🕎", taglineEmojiR: "✡️",
         tagline: "Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia",
         summonEmojiL: "🕯️", summonEmojiR: "🕯️",
@@ -872,13 +854,14 @@
         footerText: "🦅 Go Birds! 🕎", footerTextColor: "#0038b8",
         og: 'og-hanukkah.png',
         css: {"--bg": "#050a1a", "--glow-top": "#0a2060", "--glow-bottom": "#1a0a30", "--accent": "#c8a84b", "--accent-dark": "#0038b8", "--accent-light": "#f0d060", "--header-bg": "#080f28", "--stripe-a": "#0038b8", "--stripe-b": "#c8a84b", "--card-border": "#c8a84b", "--footer-bg": "#f0f4ff", "--footer-border": "#0038b8", "--footer-text": "#0038b8"},
-        floater: null,
+        floater: "floater",
+        floaterEmoji: ["🌟", "✡️", "🕯️", "🌟", "✡️"],
         deleteParticles: ["🕎", "✡️", "🕯️", "⭐", "✨", "💫", "🌟", "❄️"],
       },
       christmas: {
         range: [[12,1],[1,7]],
         title: "Fat Santa Jawn",
-        headerEmoji: "🍿",
+        headerEmoji: "🎄",
         taglineEmojiL: "🎄", taglineEmojiR: "⛄",
         tagline: "Now Showing · Fresh Downloads · Made with ❤️ in Philadelphia",
         summonEmojiL: "🎁", summonEmojiR: "🎁",
@@ -888,7 +871,8 @@
         footerText: "🦅 Go Birds! 🎄", footerTextColor: "#15803d",
         og: 'og-christmas.png',
         css: {"--bg": "#020d08", "--glow-top": "#003d12", "--glow-bottom": "#1a0008", "--accent": "#16a34a", "--accent-dark": "#dc2626", "--accent-light": "#86efac", "--header-bg": "#001a08", "--stripe-a": "#dc2626", "--stripe-b": "#16a34a", "--card-border": "#dc2626", "--footer-bg": "#f0fdf4", "--footer-border": "#dc2626", "--footer-text": "#15803d"},
-        floater: "snow",
+        floater: "floater",
+        floaterEmoji: ["❄️", "⛄", "🎄", "❄️", "❄️"],
         deleteParticles: ["❄️", "⛄", "🎄", "🎁", "⭐", "✨", "🔔", "🎅"],
       },
       default: {
@@ -905,6 +889,7 @@
         og: 'og-default.png',
         css: {"--bg": "#111827", "--glow-top": "rgba(220,38,38,0.12)", "--glow-bottom": "rgba(0,0,0,0)", "--accent": "#dc2626", "--accent-dark": "#b91c1c", "--accent-light": "#fca5a5", "--header-bg": "#0f172a", "--stripe-a": "#dc2626", "--stripe-b": "#0f172a", "--card-border": "#374151", "--footer-bg": "#ffffff", "--footer-border": "#374151", "--footer-text": "#dc2626"},
         floater: null,
+        floaterEmoji: [],
         deleteParticles: ["🍿", "🎬", "⭐", "🎭", "🎞️", "🎟️", "✨", "💫"],
       },
     };
@@ -951,54 +936,7 @@
       const ft = document.getElementById('footer-text');
       if (ft) ft.style.color = t.footerTextColor;
       if (window._floaterStop) { window._floaterStop(); window._floaterStop = null; }
-      if (t.floater === 'bats') startBats();
-      else if (t.floater === 'leaves') startLeaves();
-      else if (t.floater === 'snow') startSnow();
-    }
-
-    function startLeaves() {
-      const emojis = ['🍂','🍁','🍂','🍁','🌿'];
-      let stopped = false;
-      window._floaterStop = () => { stopped = true; };
-      function spawnLeaf() {
-        if (stopped) return;
-        const el = document.createElement('span');
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        const startX = Math.random() * window.innerWidth;
-        el.style.cssText = `position:fixed;pointer-events:none;z-index:1;font-size:${1+Math.random()}rem;left:${startX}px;top:-30px;opacity:0.7;`;
-        document.body.appendChild(el);
-        const dur = 4000 + Math.random() * 4000;
-        const drift = (Math.random() - 0.5) * 200;
-        el.animate([
-          { transform: `translate(0,0) rotate(0deg)`, opacity: 0.7 },
-          { transform: `translate(${drift}px,${window.innerHeight+40}px) rotate(${(Math.random()-0.5)*360}deg)`, opacity: 0 }
-        ], { duration: dur, easing: 'linear', fill: 'forwards' });
-        setTimeout(() => el.remove(), dur + 100);
-        setTimeout(spawnLeaf, 600 + Math.random() * 800);
-      }
-      spawnLeaf();
-    }
-
-    function startSnow() {
-      let stopped = false;
-      window._floaterStop = () => { stopped = true; };
-      function spawnFlake() {
-        if (stopped) return;
-        const el = document.createElement('span');
-        el.textContent = '❄️';
-        const size = 0.7 + Math.random() * 0.8;
-        el.style.cssText = `position:fixed;pointer-events:none;z-index:1;font-size:${size}rem;left:${Math.random()*window.innerWidth}px;top:-20px;opacity:0.6;`;
-        document.body.appendChild(el);
-        const dur = 5000 + Math.random() * 5000;
-        const drift = (Math.random() - 0.5) * 100;
-        el.animate([
-          { transform: `translate(0,0)`, opacity: 0.6 },
-          { transform: `translate(${drift}px,${window.innerHeight+30}px)`, opacity: 0 }
-        ], { duration: dur, easing: 'linear', fill: 'forwards' });
-        setTimeout(() => el.remove(), dur + 100);
-        setTimeout(spawnFlake, 300 + Math.random() * 500);
-      }
-      spawnFlake();
+      if (t.floater === 'floater' && t.floaterEmoji && t.floaterEmoji.length) startFloater(t.floaterEmoji);
     }
 
     // Apply theme before load so colors are right immediately

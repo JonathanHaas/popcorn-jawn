@@ -9,7 +9,7 @@
     "emptyEmoji": "👻",
     "footerText": "🦅 Go Birds! 🎃",
     "footerTextColor": "#009A44",
-    "emoji": {"taglineL": "🎃", "taglineR": "🎃", "summonL": "🕯️", "summonR": "🕯️", "pastL": "💀", "pastR": "💀", "header": "🍿"},
+    "emoji": {"taglineL": "🎃", "taglineR": "🎃", "summonL": "🕯️", "summonR": "🕯️", "pastL": "💀", "pastR": "💀", "header": "🎃"},
     "css": {
       "--bg": "#0d0208", "--glow-top": "#3d0800", "--glow-bottom": "#1a0a2e",
       "--accent": "#f97316", "--accent-dark": "#c2410c", "--accent-light": "#fdba74",
@@ -32,7 +32,8 @@
       "sub": "~ share if you dare ~",
       "style": "halloween"
     },
-    "floater": "bats",
+    "floater": "floater",
+    "floaterEmoji": ["🦇", "👻", "🕷️", "🦇", "👻"],
     "deleteParticles": ["💨", "💨", "🎃", "👻", "🦇", "💀", "🕷️", "⭐", "✨"]
   },
   "thanksgiving": {
@@ -45,7 +46,7 @@
     "emptyEmoji": "🦃",
     "footerText": "🦅 Go Birds! 🦃",
     "footerTextColor": "#92400e",
-    "emoji": {"taglineL": "🦃", "taglineR": "🍂", "summonL": "🌽", "summonR": "🌽", "pastL": "🍂", "pastR": "🍂", "header": "🍿"},
+    "emoji": {"taglineL": "🦃", "taglineR": "🍂", "summonL": "🌽", "summonR": "🌽", "pastL": "🍂", "pastR": "🍂", "header": "🦃"},
     "css": {
       "--bg": "#0f0a00", "--glow-top": "#3d1f00", "--glow-bottom": "#1a0a00",
       "--accent": "#d97706", "--accent-dark": "#b45309", "--accent-light": "#fcd34d",
@@ -68,7 +69,8 @@
       "sub": "~ gather round ~",
       "style": "thanksgiving"
     },
-    "floater": "leaves",
+    "floater": "floater",
+    "floaterEmoji": ["🍂", "🍁", "🌽", "🍂", "🍁"],
     "deleteParticles": ["🍂", "🍁", "🌽", "🦃", "🍂", "🍁", "✨", "🌾"]
   },
   "hanukkah": {
@@ -81,7 +83,7 @@
     "emptyEmoji": "🕎",
     "footerText": "🦅 Go Birds! 🕎",
     "footerTextColor": "#0038b8",
-    "emoji": {"taglineL": "🕎", "taglineR": "✡️", "summonL": "🕯️", "summonR": "🕯️", "pastL": "⭐", "pastR": "⭐", "header": "🍿"},
+    "emoji": {"taglineL": "🕎", "taglineR": "✡️", "summonL": "🕯️", "summonR": "🕯️", "pastL": "⭐", "pastR": "⭐", "header": "🕎"},
     "css": {
       "--bg": "#050a1a", "--glow-top": "#0a2060", "--glow-bottom": "#1a0a30",
       "--accent": "#c8a84b", "--accent-dark": "#0038b8", "--accent-light": "#f0d060",
@@ -104,7 +106,8 @@
       "sub": "~ eight nights of cinema ~",
       "style": "hanukkah"
     },
-    "floater": null,
+    "floater": "floater",
+    "floaterEmoji": ["🌟", "✡️", "🕯️", "🌟", "✡️"],
     "deleteParticles": ["🕎", "✡️", "🕯️", "⭐", "✨", "💫", "🌟", "❄️"]
   },
   "christmas": {
@@ -117,7 +120,7 @@
     "emptyEmoji": "🎄",
     "footerText": "🦅 Go Birds! 🎄",
     "footerTextColor": "#15803d",
-    "emoji": {"taglineL": "🎄", "taglineR": "⛄", "summonL": "🎁", "summonR": "🎁", "pastL": "⭐", "pastR": "⭐", "header": "🍿"},
+    "emoji": {"taglineL": "🎄", "taglineR": "⛄", "summonL": "🎁", "summonR": "🎁", "pastL": "⭐", "pastR": "⭐", "header": "🎄"},
     "css": {
       "--bg": "#020d08", "--glow-top": "#003d12", "--glow-bottom": "#1a0008",
       "--accent": "#16a34a", "--accent-dark": "#dc2626", "--accent-light": "#86efac",
@@ -140,7 +143,8 @@
       "sub": "~ peace on earth ~",
       "style": "christmas"
     },
-    "floater": "snow",
+    "floater": "floater",
+    "floaterEmoji": ["❄️", "⛄", "🎄", "❄️", "❄️"],
     "deleteParticles": ["❄️", "⛄", "🎄", "🎁", "⭐", "✨", "🔔", "🎅"]
   },
   "default": {
@@ -177,6 +181,7 @@
       "style": "default"
     },
     "floater": null,
+    "floaterEmoji": [],
     "deleteParticles": ["🍿", "🎬", "⭐", "🎭", "🎞️", "🎟️", "✨", "💫"]
   }
 }
