@@ -71,6 +71,42 @@
     "floater": "leaves",
     "deleteParticles": ["🍂", "🍁", "🌽", "🦃", "🍂", "🍁", "✨", "🌾"]
   },
+  "hanukkah": {
+    "range": {"start": "12-10", "end": "12-22"},
+    "title": "Latke Jawn",
+    "tagline": "Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia",
+    "summonLabel": "Wish for Something",
+    "emptyTitle": "No miracles in the queue yet",
+    "emptySub": "Request something to watch",
+    "emptyEmoji": "🕎",
+    "footerText": "🦅 Go Birds! 🕎",
+    "footerTextColor": "#0038b8",
+    "emoji": {"taglineL": "🕎", "taglineR": "✡️", "summonL": "🕯️", "summonR": "🕯️", "pastL": "⭐", "pastR": "⭐", "header": "🍿"},
+    "css": {
+      "--bg": "#050a1a", "--glow-top": "#0a2060", "--glow-bottom": "#1a0a30",
+      "--accent": "#c8a84b", "--accent-dark": "#0038b8", "--accent-light": "#f0d060",
+      "--header-bg": "#080f28", "--stripe-a": "#0038b8", "--stripe-b": "#c8a84b",
+      "--card-border": "#c8a84b", "--footer-bg": "#f0f4ff", "--footer-border": "#0038b8", "--footer-text": "#0038b8"
+    },
+    "og": {
+      "bgColor": [5, 10, 26],
+      "glowTop": [10, 32, 96],
+      "glowBottom": [26, 10, 48],
+      "accentHex": "#c8a84b",
+      "accentRGB": [200, 168, 75],
+      "accentDarkHex": "#0038b8",
+      "accentLightHex": "#f0d060",
+      "stripeA": "#0038b8",
+      "stripeB": "#c8a84b",
+      "titleColor": [200, 168, 75],
+      "tagColor": [240, 208, 96],
+      "subColor": [0, 56, 184],
+      "sub": "~ eight nights of cinema ~",
+      "style": "hanukkah"
+    },
+    "floater": null,
+    "deleteParticles": ["🕎", "✡️", "🕯️", "⭐", "✨", "💫", "🌟", "❄️"]
+  },
   "christmas": {
     "range": {"start": "12-01", "end": "01-07"},
     "title": "Fat Santa Jawn",

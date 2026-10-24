@@ -174,6 +174,61 @@ def draw_christmas(draw, og):
             draw.line([(sx, sy), (sx+int(10*math.cos(r)), sy+int(10*math.sin(r)))], fill=(200,230,255), width=1)
 
 
+def draw_hanukkah(draw, og):
+    gold = (200, 168, 75)
+    blue = (0, 56, 184)
+    cream = (255, 250, 220)
+    orange = (255, 160, 40)
+    cx, cy = W // 2, 60
+
+    # Menorah base: horizontal bar + vertical stem
+    bar_y = cy + 105
+    draw.rectangle([cx - 80, bar_y, cx + 80, bar_y + 10], fill=gold)
+    draw.rectangle([cx - 6, cy + 70, cx + 6, bar_y], fill=gold)
+
+    # 9 candle positions: 8 regular + 1 tall shamash in center (index 4)
+    positions = list(range(-4, 5))  # -4 to 4
+    arm_y = cy + 72
+    for i, offset in enumerate(positions):
+        candle_x = cx + offset * 18
+        is_shamash = (offset == 0)
+        arm_top = arm_y - (14 if is_shamash else 0)
+
+        # Arm from stem to candle (horizontal + vertical)
+        if offset != 0:
+            mid_x = cx if offset < 0 else cx
+            draw.line([(cx, arm_y), (candle_x, arm_y)], fill=gold, width=3)
+            draw.line([(candle_x, arm_y), (candle_x, arm_top)], fill=gold, width=3)
+
+        # Candle holder cup
+        draw.rectangle([candle_x - 4, arm_top - 4, candle_x + 4, arm_top + 4], fill=gold)
+
+        # Candle body
+        candle_h = 28 if is_shamash else 22
+        draw.rectangle([candle_x - 4, arm_top - 4 - candle_h, candle_x + 4, arm_top - 4], fill=cream)
+
+        # Flame
+        flame_base_y = arm_top - 4 - candle_h
+        draw.ellipse([candle_x - 5, flame_base_y - 14, candle_x + 5, flame_base_y + 2], fill=orange)
+        draw.ellipse([candle_x - 3, flame_base_y - 10, candle_x + 3, flame_base_y], fill=(255, 220, 80))
+
+    # 8 small Stars of David scattered on sides
+    rng = random.Random(42)
+    star_positions = [
+        (110, 120), (110, 280), (110, 440), (110, H - 100),
+        (W - 110, 120), (W - 110, 280), (W - 110, 440), (W - 110, H - 100),
+    ]
+    for sx, sy in star_positions:
+        r = 14
+        # Two overlapping triangles
+        for rot in [0, 60]:
+            pts = []
+            for ang in [90, 210, 330]:
+                a = math.radians(ang + rot)
+                pts.append((sx + int(r * math.cos(a)), sy + int(r * math.sin(a))))
+            draw.polygon(pts, outline=gold, fill=None)
+
+
 def draw_default(draw, og):
     acc = tuple(og["accentRGB"])
     cx, cy = W//2, 110
@@ -198,6 +253,7 @@ def draw_default(draw, og):
 STYLE_DRAWERS = {
     "halloween": draw_halloween,
     "thanksgiving": draw_thanksgiving,
+    "hanukkah": draw_hanukkah,
     "christmas": draw_christmas,
     "default": draw_default,
 }
