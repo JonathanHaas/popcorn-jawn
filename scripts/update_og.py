@@ -5,8 +5,8 @@ from datetime import datetime
 
 THEMES = {
     'halloween':    {'title': 'Ghoulish Jawn',  'desc': 'Fresh frights, ready to watch. Made with love in Philadelphia.'},
-    'thanksgiving': {'title': 'Popcorn Jawn',   'desc': 'Fresh downloads, ready to watch. Made with love in Philadelphia.'},
-    'christmas':    {'title': 'Popcorn Jawn',   'desc': 'Fresh downloads, ready to watch. Made with love in Philadelphia.'},
+    'thanksgiving': {'title': 'Gobbler Jawn',   'desc': 'Fresh downloads, ready to watch. Made with love in Philadelphia.'},
+    'christmas':    {'title': 'Fat Santa Jawn', 'desc': 'Fresh downloads, ready to watch. Made with love in Philadelphia.'},
     'default':      {'title': 'Popcorn Jawn',   'desc': 'Fresh downloads, ready to watch. Made with love in Philadelphia.'},
 }
 
