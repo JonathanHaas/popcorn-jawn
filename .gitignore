@@ -3,3 +3,7 @@ sync.log
 public/shares.json
 public/og.png
 __pycache__/
+public/pending.json
+shares.json
+sync.lock
+*.bak*

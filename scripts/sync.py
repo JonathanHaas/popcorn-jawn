@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Poll Radarr for completed downloads and auto-upload to gofile.io."""
 
+import fcntl
 import json
 import os
 import subprocess
@@ -16,6 +17,7 @@ _cfg = json.loads((_root / "config.json").read_text())
 RADARR_URL = _cfg["radarr_url"]
 RADARR_KEY = _cfg["radarr_key"]
 GOFILE_EXPIRY_DAYS = _cfg.get("gofile_expiry_days", 10)
+MAX_UPLOAD_BYTES = _cfg.get("max_upload_bytes", 10 * 1024 ** 3)
 DATA_FILE = _root / "public" / "shares.json"
 
 SEERR_URL = "http://localhost:5055"
@@ -54,6 +56,18 @@ def load_data():
 
 def save_data(data):
     DATA_FILE.write_text(json.dumps(data, indent=2))
+
+
+def trim_old_entries(data, keep_days=30):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
+    before = len(data["shares"])
+    data["shares"] = [
+        s for s in data["shares"]
+        if not s.get("expires") or datetime.fromisoformat(s["expires"]) > cutoff
+    ]
+    removed = before - len(data["shares"])
+    if removed:
+        print(f"Trimmed {removed} entries older than {keep_days} days.")
 
 
 def upload_to_gofile(filepath):
@@ -181,7 +195,16 @@ def sync_sonarr(data):
 
 
 def main():
+    lock_path = _root / "sync.lock"
+    lock_file = open(lock_path, "w")
+    try:
+        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("Another sync is already running, exiting.", file=sys.stderr)
+        sys.exit(0)
+
     data = load_data()
+    trim_old_entries(data)
 
     # Ensure sync_since is always persisted — set to now on first run or if stripped
     if "sync_since" not in data:
@@ -212,6 +235,13 @@ def main():
         title, year = get_movie_title(movie_id)
         size_bytes = os.path.getsize(filepath)
         size_human = f"{size_bytes / 1e9:.1f}G"
+
+        if size_bytes > MAX_UPLOAD_BYTES:
+            print(f"  SKIP: {title} [{size_human}] exceeds {MAX_UPLOAD_BYTES/1024**3:.0f}GB limit", file=sys.stderr)
+            known_history_ids.add(rec_id)
+            known_movie_ids.add(movie_id)
+            continue
+
         poster_path, tmdb_id = seerr_lookup(title, year)
 
         print(f"Uploading: {title} ({year}) [{size_human}]...")
@@ -242,13 +272,15 @@ def main():
 
         subprocess.run([
             "openclaw", "message", "send",
-            "--channel", "telegram",
-            "--target", "8880003956",
+            "--channel", "whatsapp",
+            "--target", "+12154291152",
             "--message", f"🍿 {title} ({year}) is now on Popcorn Jawn\n{link}\nExpires in {GOFILE_EXPIRY_DAYS} days",
         ], capture_output=True)
 
     tv_count = sync_sonarr(data)
     print(f"Sync complete. {new_count} movie(s), {tv_count} TV episode(s) uploaded.")
+    fcntl.flock(lock_file, fcntl.LOCK_UN)
+    lock_file.close()
 
 
 if __name__ == "__main__":

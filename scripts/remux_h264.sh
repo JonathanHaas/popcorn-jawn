@@ -1,46 +1,91 @@
 #!/bin/bash
 # Remux H.264 MKVs to MP4 for Roku direct play. Deletes MKV after successful conversion.
+# Re-encodes H.265/HEVC → H.264 using hardware (h264_v4l2m2m) with libx264 fallback.
 FFMPEG=/usr/lib/jellyfin-ffmpeg/ffmpeg
 FFPROBE=/usr/lib/jellyfin-ffmpeg/ffprobe
 LOG=/tmp/remux_batch.log
 
 echo "=== Batch remux started $(date) ===" | tee -a "$LOG"
 
-find /mnt/external/movies -name "*.mkv" | sort | while read mkv; do
-  codec=$("$FFPROBE" -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$mkv" 2>/dev/null | tr -d ',')
-  if [ "$codec" != "h264" ]; then
-    echo "SKIP (${codec}): $mkv" | tee -a "$LOG"
-    continue
+encode_to_h264() {
+  local input="$1"
+  local output="$2"
+
+  # Try hardware encoder first
+  "$FFMPEG" -y -i "$input" \
+    -c:v h264_v4l2m2m -b:v 4M -c:a copy -c:s mov_text -map 0 \
+    -movflags +faststart "$output" >> "$LOG" 2>&1
+  if [ $? -eq 0 ] && [ -f "$output" ]; then
+    local out_size
+    out_size=$(stat -c%s "$output")
+    [ "$out_size" -gt 1048576 ] && return 0
+    rm -f "$output"
   fi
 
-  mp4="${mkv%.mkv}.mp4"
+  # Fallback: software encode
+  echo "  hw encode failed, falling back to libx264" | tee -a "$LOG"
+  "$FFMPEG" -y -i "$input" \
+    -c:v libx264 -crf 18 -preset fast -c:a copy -c:s mov_text -map 0 \
+    -movflags +faststart "$output" >> "$LOG" 2>&1
+}
 
-  # Skip if MP4 already exists and is a reasonable size
-  if [ -f "$mp4" ]; then
-    mkv_size=$(stat -c%s "$mkv")
-    mp4_size=$(stat -c%s "$mp4")
-    if [ "$mp4_size" -gt $((mkv_size / 2)) ]; then
-      echo "ALREADY DONE: $mp4" | tee -a "$LOG"
-      rm -f "$mkv" && echo "  Deleted MKV" | tee -a "$LOG"
+find /mnt/external/movies -name "*.mkv" -o -name "*.mp4" | sort | while read src; do
+  codec=$("$FFPROBE" -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$src" 2>/dev/null | tr -d ',')
+  ext="${src##*.}"
+  mp4="${src%.*}.mp4"
+
+  case "$codec" in
+    h264)
+      if [ "$ext" = "mp4" ]; then
+        echo "SKIP (already h264 mp4): $(basename "$src")" | tee -a "$LOG"
+        continue
+      fi
+      # Remux MKV → MP4, no re-encode
+      if [ -f "$mp4" ]; then
+        src_size=$(stat -c%s "$src")
+        mp4_size=$(stat -c%s "$mp4")
+        if [ "$mp4_size" -gt $((src_size / 2)) ]; then
+          echo "ALREADY DONE: $(basename "$mp4")" | tee -a "$LOG"
+          rm -f "$src" && echo "  Deleted MKV" | tee -a "$LOG"
+          continue
+        fi
+      fi
+      echo "REMUXING (h264): $(basename "$src")" | tee -a "$LOG"
+      "$FFMPEG" -y -i "$src" -c:v copy -c:a copy -c:s mov_text -map 0 \
+        -movflags +faststart "$mp4" >> "$LOG" 2>&1
+      ;;
+
+    hevc|h265)
+      if [ -f "$mp4" ] && [ "$ext" = "mkv" ]; then
+        src_size=$(stat -c%s "$src")
+        mp4_size=$(stat -c%s "$mp4")
+        if [ "$mp4_size" -gt $((src_size / 4)) ]; then
+          echo "ALREADY DONE: $(basename "$mp4")" | tee -a "$LOG"
+          rm -f "$src" && echo "  Deleted source" | tee -a "$LOG"
+          continue
+        fi
+      fi
+      echo "ENCODING (hevc→h264): $(basename "$src")" | tee -a "$LOG"
+      encode_to_h264 "$src" "$mp4"
+      ;;
+
+    *)
+      echo "SKIP (${codec}): $(basename "$src")" | tee -a "$LOG"
       continue
-    fi
-  fi
-
-  echo "REMUXING: $(basename "$mkv")" | tee -a "$LOG"
-  "$FFMPEG" -i "$mkv" -c:v copy -c:a copy -c:s mov_text -map 0 \
-    -movflags +faststart "$mp4" >> "$LOG" 2>&1
+      ;;
+  esac
 
   if [ $? -eq 0 ] && [ -f "$mp4" ]; then
     mp4_size=$(stat -c%s "$mp4")
-    mkv_size=$(stat -c%s "$mkv")
-    if [ "$mp4_size" -gt $((mkv_size / 2)) ]; then
-      rm -f "$mkv" && echo "  OK — deleted MKV ($(du -sh "$mp4" | cut -f1))" | tee -a "$LOG"
+    src_size=$(stat -c%s "$src")
+    if [ "$mp4_size" -gt $((src_size / 4)) ]; then
+      [ "$src" != "$mp4" ] && rm -f "$src" && echo "  OK — deleted source ($(du -sh "$mp4" | cut -f1))" | tee -a "$LOG"
     else
-      echo "  ERROR: MP4 too small, keeping MKV" | tee -a "$LOG"
+      echo "  ERROR: output too small, keeping source" | tee -a "$LOG"
       rm -f "$mp4"
     fi
   else
-    echo "  ERROR: ffmpeg failed, keeping MKV" | tee -a "$LOG"
+    echo "  ERROR: ffmpeg failed, keeping source" | tee -a "$LOG"
     rm -f "$mp4"
   fi
 done

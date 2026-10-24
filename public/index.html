@@ -3,36 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popcorn Jawn</title>
-  <meta property="og:title" content="Popcorn Jawn">
-  <meta property="og:description" content="Fresh downloads, ready to watch">
-  <meta property="og:image" content="https://popcorn.jawnhaas.xyz/og.png?v=5">
+  <title>Ghoulish Jawn</title>
+  <meta property="og:title" content="Ghoulish Jawn">
+  <meta property="og:description" content="Fresh frights, ready to watch. Made with love in Philadelphia.">
+  <meta property="og:image" content="https://popcorn.jawnhaas.xyz/og-halloween.png?v=1792843232">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   <meta property="og:url" content="https://popcorn.jawnhaas.xyz">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://popcorn.jawnhaas.xyz/og.png?v=5">
+  <meta name="twitter:image" content="https://popcorn.jawnhaas.xyz/og-halloween.png?v=1792843232">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0d0208;
+      --glow-top: #3d0800;
+      --glow-bottom: #1a0a2e;
+      --accent: #f97316;
+      --accent-dark: #c2410c;
+      --accent-light: #fdba74;
+      --header-bg: #1a0a00;
+      --stripe-a: #f97316;
+      --stripe-b: #1a0a00;
+      --card-border: #c2410c;
+      --footer-bg: #ffffff;
+      --footer-border: #c2410c;
+      --footer-text: #009A44;
+    }
     html, body { overflow-x: hidden; }
-    body { background-color: #C8102E; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, var(--glow-top) 0%, transparent 65%),
+        radial-gradient(ellipse at 90% 100%, var(--glow-bottom) 0%, transparent 60%);
+    }
 
     .stripe-border {
       background: repeating-linear-gradient(
         180deg,
-        #C8102E 0px, #C8102E 18px,
-        #ffffff 18px, #ffffff 36px
+        var(--stripe-a) 0px, var(--stripe-a) 18px,
+        var(--stripe-b) 18px, var(--stripe-b) 36px
       );
     }
 
     .popcorn-box {
       background: #ffffff;
       border-radius: 0 0 14px 14px;
-      border: 3px solid #8B0000;
+      border: 3px solid #c2410c;
       border-top: none;
       clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
     }
@@ -42,10 +62,11 @@
     .card {
       background: #ffffff;
       border-radius: 14px;
-      border: 3px solid #8B0000;
+      border: 3px solid var(--card-border);
       overflow: hidden;
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: transform 0.18s, box-shadow 0.18s;
     }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(249,115,22,0.22); }
 
     .card { position: relative; }
     .card-panel {
@@ -83,7 +104,7 @@
     }
     .cd-backdrop-fallback {
       width: 100%; height: 130px;
-      background: linear-gradient(135deg, #8B0000, #C8102E);
+      background: linear-gradient(135deg, #7c2d12, var(--accent));
       display: flex; align-items: center; justify-content: center; font-size: 2rem;
     }
     .cd-body { padding: 10px 14px 14px; }
@@ -109,7 +130,7 @@
 
     #req-results:not(:empty) {
       box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-      border: 2px solid #8B0000;
+      border: 2px solid var(--accent-dark);
       border-radius: 10px;
       overflow: hidden;
       box-sizing: border-box;
@@ -123,21 +144,21 @@
     .card-accent {
       background: repeating-linear-gradient(
         90deg,
-        #C8102E 0px, #C8102E 10px,
+        var(--accent) 0px, var(--accent) 10px,
         #ffffff 10px, #ffffff 20px
       );
       height: 8px;
     }
 
     .rent-btn {
-      background: #C8102E;
+      background: var(--accent);
       color: #ffffff;
       font-family: 'Alfa Slab One', serif;
       border-radius: 8px;
       letter-spacing: 0.04em;
-      transition: background 0.15s;
+      transition: background 0.15s, transform 0.1s;
     }
-    .rent-btn:hover { background: #8B0000; }
+    .rent-btn:hover { background: var(--accent-dark); transform: scale(1.04); }
 
     @keyframes popcorn-pop {
       0%, 75%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
@@ -213,6 +234,32 @@
       border-radius: 50%;
       transform: rotate(-20deg);
     }
+
+    @keyframes spook-fly {
+      0%   { opacity: 1; transform: translate(-50%,-50%) scale(0.5) rotate(0deg); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(1.2) rotate(var(--sr)); }
+    }
+    .spook-particle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1.4rem;
+      z-index: 9999;
+      animation: spook-fly var(--sd) cubic-bezier(0.15, 0.8, 0.5, 1) forwards;
+    }
+
+    @keyframes bat-float {
+      0%   { transform: translateY(0) scaleX(1); }
+      40%  { transform: translateY(-12px) scaleX(-1); }
+      80%  { transform: translateY(4px) scaleX(1); }
+      100% { transform: translateY(0) scaleX(1); }
+    }
+    .bat {
+      display: inline-block;
+      font-size: 1.3rem;
+      animation: bat-float var(--bd) ease-in-out infinite;
+      animation-delay: var(--bdelay);
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body class="min-h-screen" style="font-family: 'Inter', sans-serif;">
@@ -222,61 +269,55 @@
 
   <!-- Activity drawer -->
   <div id="menu-drawer" style="display:none;position:fixed;right:0;top:0;bottom:0;width:min(340px,100vw);background:#fff;z-index:201;overflow-y:auto;box-shadow:-6px 0 32px rgba(0,0,0,0.25);transition:transform 0.2s;">
-    <div style="background:#C8102E;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
+    <div style="background:var(--accent);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
       <span class="slab" style="color:#fff;font-size:1.1rem;">Activity</span>
       <button onclick="closeMenu()" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1;padding:0 4px;">×</button>
     </div>
     <div style="padding:18px 20px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📥 Downloads</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:12px;">📥 Downloads</div>
       <div id="menu-dl">Loading…</div>
     </div>
     <div style="border-top:2px solid #FFF0F0;padding:18px 20px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📺 TV Episodes</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:12px;">📺 TV Episodes</div>
       <div id="menu-tv"></div>
     </div>
     <div style="border-top:2px solid #FFF0F0;padding:18px 20px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B0000;margin-bottom:12px;">📤 Now Sharing</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:12px;">📤 Now Sharing</div>
       <div id="menu-ul"></div>
     </div>
   </div>
 
-  <!-- Header stripe top -->
-  <div class="stripe-border h-10"></div>
-
   <!-- Header box -->
-  <div style="background:#ffffff;position:relative;" class="px-6 py-6 text-center">
+  <div id="header-box" style="background:var(--header-bg);position:relative;border-bottom:2px solid var(--accent);" class="px-6 py-6 text-center">
     <button onclick="toggleMenu()" id="menu-btn" title="Activity" style="position:absolute;top:18px;right:18px;background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px;">
-      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
-      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
-      <span style="display:block;width:22px;height:2px;background:#C8102E;border-radius:2px;"></span>
+      <span style="display:block;width:22px;height:2px;background:var(--accent);border-radius:2px;"></span>
+      <span style="display:block;width:22px;height:2px;background:var(--accent);border-radius:2px;"></span>
+      <span style="display:block;width:22px;height:2px;background:var(--accent);border-radius:2px;"></span>
     </button>
     <div class="text-5xl mb-1">
       <span class="popcorn-wrap" id="popcorn-wrap">
-        <span class="popcorn-pop">🍿</span>
+        <span class="popcorn-pop" id="header-emoji">🍿</span>
       </span>
     </div>
-    <h1 class="slab text-4xl tracking-tight" style="color:#C8102E;">Popcorn Jawn</h1>
+    <h1 class="slab text-4xl tracking-tight" id="site-title" style="color:var(--accent);">Ghoulish Jawn</h1>
     <div class="flex items-center justify-center gap-2 mt-1">
-      <span class="kernel"></span>
-      <span class="text-xs font-semibold tracking-widest uppercase" style="color:#8B0000;">Now Showing · Fresh Downloads · Made with ❤️ in Philadelphia</span>
-      <span class="kernel"></span>
+      <span id="tagline-emoji-left" style="font-size:0.8rem;">🎃</span>
+      <span id="tagline-text" class="text-xs font-semibold tracking-widest uppercase" style="color:var(--accent-light);">Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia</span>
+      <span id="tagline-emoji-right" style="font-size:0.8rem;">🎃</span>
     </div>
   </div>
-
-  <!-- Header stripe bottom -->
-  <div style="height:2px; background:#8B0000;"></div>
 
   <!-- Request section -->
   <div class="max-w-2xl mx-auto px-4 pt-6 pb-2" style="position:relative;">
     <div class="flex items-center gap-3 mb-3">
-      <span class="kernel"></span>
-      <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffffff;">Request Something</span>
-      <span class="kernel"></span>
+      <span id="summon-emoji-left" style="font-size:0.85rem;">🕯️</span>
+      <span id="summon-label" class="text-xs font-bold tracking-widest uppercase" style="color:var(--accent-light);">Summon Something</span>
+      <span id="summon-emoji-right" style="font-size:0.85rem;">🕯️</span>
     </div>
     <div class="flex gap-2">
       <input type="text" id="req-input" placeholder="Title, description, vibe…"
              class="flex-1 px-4 py-2 rounded-lg text-sm"
-             style="border:2px solid #8B0000; outline:none; font-family:'Inter',sans-serif; font-size:16px;"
+             style="border:2px solid var(--accent-dark); outline:none; font-family:'Inter',sans-serif; font-size:16px;"
              oninput="debouncedSearch()"
              onkeydown="if(event.key==='Enter') searchMovies()"
              onblur="setTimeout(()=>{ document.getElementById('req-results').innerHTML=''; },200)">
@@ -292,25 +333,16 @@
     <div id="pending" class="space-y-4 mb-4"></div>
     <div id="shares" class="space-y-4"></div>
     <div id="empty" class="hidden text-center py-16">
-      <div class="text-4xl mb-3">🎞️</div>
-      <p class="slab text-xl" style="color:#ffffff;">No showings tonight</p>
-      <p class="text-sm mt-1" style="color:#ffaaaa;">Check back soon</p>
+      <div id="empty-emoji" class="text-5xl mb-3" style="display:inline-block;">👻</div>
+      <p id="empty-title" class="slab text-xl" style="color:#ffffff;">Nothing haunting the queue tonight</p>
+      <p id="empty-sub" class="text-sm mt-1" style="color:var(--accent-light);">Request something spooky</p>
     </div>
 
-    <!-- Expired -->
-    <div id="history-section" class="mt-10 hidden">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="kernel"></span>
-        <span class="text-xs font-bold tracking-widest uppercase" style="color:#ffaaaa;">Past Showings</span>
-        <span class="kernel"></span>
-      </div>
-      <div id="history"></div>
-    </div>
   </div>
 
   <!-- Footer band -->
-  <div style="background:#ffffff; border-top:2px solid #8B0000; border-bottom:2px solid #8B0000;" class="text-center py-3">
-    <span style="font-family:'Alfa Slab One',serif; font-size:1.1rem; color:#009A44; letter-spacing:0.06em;">🦅 Go Birds!</span>
+  <div id="footer-band" style="background:var(--footer-bg); border-top:2px solid var(--footer-border); border-bottom:2px solid var(--footer-border);" class="text-center py-3">
+    <span id="footer-text" style="font-family:'Alfa Slab One',serif; font-size:1.1rem; color:var(--footer-text); letter-spacing:0.06em;">🦅 Go Birds! 🎃</span>
   </div>
 
   <script>
@@ -344,7 +376,7 @@
         : null;
       return src
         ? `<img src="${src}" class="${size} object-cover rounded flex-shrink-0" style="border:1px solid #d1d5db;" loading="lazy">`
-        : `<div class="${size} flex-shrink-0 rounded flex items-center justify-center text-xl" style="background:#FFF0F0; border:1px solid #C8102E;">🎬</div>`;
+        : `<div class="${size} flex-shrink-0 rounded flex items-center justify-center text-xl" style="background:#fff7ed; border:1px solid var(--accent);">🎬</div>`;
     }
     function epLabel(s) {
       return `S${String(s.season).padStart(2,'0')}E${String(s.episode).padStart(2,'0')}`;
@@ -361,7 +393,7 @@
             <div class="flex-1 min-w-0">
               <div class="slab text-lg leading-tight" style="color:#1a1a1a;">${s.title}</div>
               <div class="flex flex-wrap items-center gap-2 mt-1">
-                <span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#FFF0F0;color:#C8102E;">${badge}</span>
+                <span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#fff7ed;color:var(--accent);">${badge}</span>
                 ${isTV && s.episode_title ? `<span class="text-xs" style="color:#666;">${s.episode_title}</span>` : '<span class="rating-slot text-xs" style="color:#aaa;">…</span>'}
               </div>
               ${isTV && s.episode_overview ? `<div class="text-xs mt-1" style="color:#888;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${s.episode_overview}</div>` : ''}
@@ -373,38 +405,33 @@
                 ${expiryBadge(s.expires)}
               </div>
             </div>
-            <a href="${s.gofile_link}" target="_blank" class="rent-btn flex-shrink-0 text-sm px-4 py-2 no-underline">
-              Get It
-            </a>
+            <div class="flex flex-col gap-2 flex-shrink-0">
+              <a href="${s.gofile_link}" target="_blank" class="rent-btn flex-shrink-0 text-sm px-4 py-2 no-underline text-center">
+                Get It
+              </a>
+              <button onclick="deleteShare(this,event,'${s.radarr_movie_id||''}','${s.radarr_history_id||''}','${s.sonarr_history_id||''}','${(s.title||'').replace(/'/g,'')}',${s.year||'null'})" title="Delete file" style="background:none;border:1px solid #e5e7eb;border-radius:6px;color:#ccc;font-size:0.85rem;padding:3px 8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444';" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#ccc';">🗑</button>
+            </div>
           </div>
           ${!isTV && s.tmdbId ? `<div class="card-panel"><div class="cd-backdrop-wrap loading"></div><div class="cd-body"></div></div>` : ''}
         </div>`;
     }
 
-    function expiredRow(s) {
-      const label = s.media_type === 'tv' ? epLabel(s) : `(${s.year})`;
-      return `
-        <div class="flex items-center py-2 border-b" style="border-color:#ffaaaa33;">
-          <span class="text-sm font-semibold" style="color:#ffaaaa;">${s.title} <span style="font-weight:400;">${label}</span></span>
-          <span class="ml-auto text-xs" style="color:#ff666680;">Expired ${formatDate(s.expires)}</span>
-        </div>`;
-    }
 
-    function getPending() {
-      try { return JSON.parse(localStorage.getItem('popcorn_pending') || '[]'); } catch { return []; }
-    }
-    function savePending(list) {
-      localStorage.setItem('popcorn_pending', JSON.stringify(list));
-    }
-    function dismissPending(id) {
-      savePending(getPending().filter(p => String(p.id) !== String(id)));
+    async function dismissPending(id) {
+      await fetch(`/arr-control/pending?id=${id}`, {method: 'DELETE'}).catch(() => {});
       document.querySelector(`[data-pending-id="${id}"]`)?.remove();
     }
 
-    function renderPendingCards(activeShares) {
+    async function renderPendingCards(activeShares) {
       const activeTmdbIds = new Set((activeShares||[]).map(s => String(s.tmdbId)));
-      let pending = getPending().filter(p => !activeTmdbIds.has(String(p.id)));
-      savePending(pending);
+      let pending = [];
+      try {
+        pending = await fetch('/arr-control/pending').then(r => r.json());
+      } catch { pending = []; }
+      // Auto-dismiss any that are now active
+      const toRemove = pending.filter(p => activeTmdbIds.has(String(p.id)));
+      toRemove.forEach(p => fetch(`/arr-control/pending?id=${p.id}`, {method: 'DELETE'}).catch(() => {}));
+      pending = pending.filter(p => !activeTmdbIds.has(String(p.id)));
       const el = document.getElementById('pending');
       el.innerHTML = pending.map(p => `
         <div class="card card-pending" data-pending-id="${p.id}">
@@ -429,7 +456,6 @@
         const shares = data.shares || [];
         const active = shares.filter(s => daysUntil(s.expires) > 0).reverse();
         _activeShares = active;
-        const expired = shares.filter(s => daysUntil(s.expires) <= 0).reverse();
 
         renderPendingCards(active);
 
@@ -439,10 +465,6 @@
           document.getElementById('shares').innerHTML = active.map(activeCard).join('');
           fetchRatings(active.filter(s => s.tmdbId).map(s => ({id: s.tmdbId, mediaType: 'movie'})), document.getElementById('shares'));
         }
-        if (expired.length > 0) {
-          document.getElementById('history-section').classList.remove('hidden');
-          document.getElementById('history').innerHTML = expired.map(expiredRow).join('');
-        }
       } catch {
         document.getElementById('shares').innerHTML = '<p class="text-sm font-bold" style="color:#ffaaaa;">Failed to load shares.</p>';
       }
@@ -450,22 +472,94 @@
 
     load();
 
-    // Popcorn kernel burst
+    function spawnSpooks(x, y) {
+      const emojis = (THEMES[_activeTheme] || THEMES.halloween).deleteParticles;
+      const count = 14;
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const p = document.createElement('span');
+          p.className = 'spook-particle';
+          const angle = (Math.random() * 360) * Math.PI / 180;
+          const dist = 80 + Math.random() * 160;
+          p.style.left = x + 'px';
+          p.style.top = y + 'px';
+          p.style.setProperty('--sx', (Math.cos(angle) * dist) + 'px');
+          p.style.setProperty('--sy', (Math.sin(angle) * dist) + 'px');
+          p.style.setProperty('--sr', (Math.random() * 360 - 180) + 'deg');
+          p.style.setProperty('--sd', (0.7 + Math.random() * 0.5) + 's');
+          p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 1300);
+        }, i * 35);
+      }
+    }
+
+    // Viewport bats
+    function startBats() {
+      let stopped = false;
+      window._floaterStop = () => { stopped = true; };
+      function launchBat() {
+        if (stopped) return;
+        const t = THEMES[_activeTheme] || THEMES.halloween;
+        const floatEmojis = t.floater === 'bats' ? ['🦇','👻'] : ['🦇','👻'];
+        const bat = document.createElement('span');
+        bat.textContent = floatEmojis[Math.floor(Math.random() * floatEmojis.length)];
+        bat.style.cssText = 'position:fixed;pointer-events:none;z-index:9;font-size:1.4rem;will-change:transform;transition:none;';
+        const edge = Math.floor(Math.random() * 4);
+        const W = window.innerWidth, H = window.innerHeight;
+        let x, y, tx, ty;
+        if (edge === 0) { x = -30; y = Math.random()*H; tx = W+30; ty = Math.random()*H; }
+        else if (edge === 1) { x = W+30; y = Math.random()*H; tx = -30; ty = Math.random()*H; }
+        else if (edge === 2) { x = Math.random()*W; y = -30; tx = Math.random()*W; ty = H+30; }
+        else { x = Math.random()*W; y = H+30; tx = Math.random()*W; ty = -30; }
+        bat.style.left = x + 'px';
+        bat.style.top  = y + 'px';
+        if (tx < x) bat.style.transform = 'scaleX(-1)';
+        document.body.appendChild(bat);
+        const dur = 4000 + Math.random() * 5000;
+        const start = performance.now();
+        function frame(now) {
+          if (stopped) { bat.remove(); return; }
+          const t = Math.min((now - start) / dur, 1);
+          const perp = Math.sin(t * Math.PI * 4) * 18;
+          const dx = tx - x, dy = ty - y;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy/len, ny = dx/len;
+          const cx = x + dx*t + nx*perp;
+          const cy = y + dy*t + ny*perp;
+          bat.style.left = cx + 'px';
+          bat.style.top  = cy + 'px';
+          if (t < 1) requestAnimationFrame(frame);
+          else bat.remove();
+        }
+        requestAnimationFrame(frame);
+        setTimeout(launchBat, 1200 + Math.random() * 2800);
+      }
+      for (let i = 0; i < 3; i++) setTimeout(launchBat, i * 600);
+    }
+
+    // Pumpkin burst from popcorn header
     const wrap = document.getElementById('popcorn-wrap');
     function spawnKernels() {
+      const emojis = ['🎃','🎃','🎃','👻','🕷️'];
       const count = 5 + Math.floor(Math.random() * 4);
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const k = document.createElement('span');
-          k.className = 'kernel-particle';
+          k.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          k.style.cssText = 'position:absolute;left:50%;top:30%;pointer-events:none;font-size:2rem;';
           const angle = (Math.random() * 160 - 80) * Math.PI / 180;
-          const dist = 45 + Math.random() * 45;
-          k.style.setProperty('--kx', (Math.sin(angle) * dist) + 'px');
-          k.style.setProperty('--ky', (-Math.cos(angle) * dist - 20) + 'px');
-          k.style.setProperty('--kr', (Math.random() * 360 - 180) + 'deg');
-          k.style.setProperty('--kd', (0.6 + Math.random() * 0.4) + 's');
+          const dist = 45 + Math.random() * 55;
+          const tx = Math.sin(angle) * dist;
+          const ty = -Math.cos(angle) * dist - 20;
+          const rot = (Math.random() * 360 - 180);
+          const dur = 0.65 + Math.random() * 0.4;
+          k.animate([
+            { transform: 'translate(-50%,-50%) scale(0.5) rotate(0deg)', opacity: 1 },
+            { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(1.1) rotate(${rot}deg)`, opacity: 0 }
+          ], { duration: dur * 1000, easing: 'cubic-bezier(0.2,0.8,0.6,1)', fill: 'forwards' });
           wrap.appendChild(k);
-          setTimeout(() => k.remove(), 1100);
+          setTimeout(() => k.remove(), dur * 1000 + 100);
         }, i * 40);
       }
     }
@@ -519,7 +613,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="slab text-base leading-tight truncate" style="color:#1a1a1a;">${r.title}</div>
                   <div class="flex items-center flex-wrap gap-2 mt-0.5">
-                    ${r.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#FFF0F0;color:#C8102E;">${r.year}</span>` : ''}
+                    ${r.year ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-full" style="background:#fff7ed;color:var(--accent);">${r.year}</span>` : ''}
                     <span class="text-xs capitalize" style="color:#888;">${r.mediaType}</span>
                     ${badge}
                     <span class="rating-slot text-xs" style="color:#aaa;">…</span>
@@ -579,7 +673,7 @@
           if (d.rtScore) {
             const pct = parseInt(d.rtScore);
             const tomato = pct >= 60 ? '🍅' : '🤢';
-            html += `<span style="color:${pct>=60?'#C8102E':'#888'}; font-weight:600;">${tomato} ${d.rtScore}</span>`;
+            html += `<span style="color:${pct>=60?'#f97316':'#888'}; font-weight:600;">${tomato} ${d.rtScore}</span>`;
           }
           if (d.imdbScore) {
             html += `${html ? ' · ' : ''}<span style="color:#f5c518; font-weight:600;">IMDb ${d.imdbScore}</span>`;
@@ -634,7 +728,7 @@
               <div class="sp-season" data-season="${s.number}" style="border-bottom:1px solid #1e1e1e;">
                 <div style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;" onclick="spToggleSeason(${s.number},${id},this)">
                   <span class="sp-chev" style="color:#555;font-size:10px;width:12px;text-align:center;">▶</span>
-                  <input type="checkbox" class="sp-season-cb" data-season="${s.number}" style="accent-color:#C8102E;width:15px;height:15px;flex-shrink:0;" checked onclick="event.stopPropagation();spSeasonCheck(${s.number},this)">
+                  <input type="checkbox" class="sp-season-cb" data-season="${s.number}" style="accent-color:#f97316;width:15px;height:15px;flex-shrink:0;" checked onclick="event.stopPropagation();spSeasonCheck(${s.number},this)">
                   <span style="color:#eee;font-size:13px;font-weight:600;flex:1;">${s.name}</span>
                   <span style="color:#555;font-size:11px;">${s.episodeCount} eps</span>
                 </div>
@@ -664,7 +758,7 @@
         if (!d.ok || !d.episodes.length) { epsDiv.innerHTML = '<p style="color:#555;font-size:11px;padding-left:20px;">No episodes.</p>'; return; }
         epsDiv.innerHTML = d.episodes.map(ep => `
           <label style="display:flex;align-items:center;gap:8px;padding:3px 0 3px 20px;cursor:pointer;">
-            <input type="checkbox" class="sp-ep-cb" data-season="${seasonNum}" data-ep="${ep.number}" style="accent-color:#C8102E;width:13px;height:13px;flex-shrink:0;" checked onchange="spSyncSeasonCb(${seasonNum})">
+            <input type="checkbox" class="sp-ep-cb" data-season="${seasonNum}" data-ep="${ep.number}" style="accent-color:#f97316;width:13px;height:13px;flex-shrink:0;" checked onchange="spSyncSeasonCb(${seasonNum})">
             <span style="color:#888;font-size:11px;min-width:28px;flex-shrink:0;">E${String(ep.number).padStart(2,'0')}</span>
             <span style="color:#ccc;font-size:12px;">${ep.name}</span>
           </label>`).join('');
@@ -714,17 +808,183 @@
           body: JSON.stringify({mediaId: id, mediaType: 'tv', seasons}),
         });
         if (res.ok) {
-          btn.textContent = 'Queued 🍿'; btn.style.background = '#16a34a';
-          const pending = getPending().filter(p => String(p.id) !== String(id));
-          pending.unshift({id, type: 'tv', title, year, posterPath, seasons, seasonLabel, requestedAt: Date.now()});
-          savePending(pending);
-          renderPendingCards(null);
+          btn.textContent = 'Summoned! 👻'; btn.style.background = '#16a34a';
+          const r = btn.getBoundingClientRect();
+          spawnSpooks(r.left + r.width/2, r.top + r.height/2);
+          await fetch('/arr-control/pending', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id, type: 'tv', title, year, posterPath, seasons, seasonLabel}),
+          }).catch(() => {});
+          renderPendingCards(_activeShares);
           setTimeout(() => clearSeasonPicker(), 1000);
         } else {
           btn.textContent = 'Error'; btn.disabled = false;
         }
       } catch { btn.textContent = 'Error'; btn.disabled = false; }
     }
+
+    // ---- Seasonal Theme Engine ----
+    const THEMES = {
+      halloween: {
+        range: [[10,1],[10,31]],
+        title: 'Ghoulish Jawn',
+        headerEmoji: '🍿',
+        taglineEmojiL: '🎃', taglineEmojiR: '🎃',
+        tagline: 'Now Haunting · Fresh Frights · Made with 🧡 in Philadelphia',
+        summonEmojiL: '🕯️', summonEmojiR: '🕯️',
+        summonLabel: 'Summon Something',
+        emptyEmoji: '👻', emptyTitle: 'Nothing haunting the queue tonight', emptySub: 'Request something spooky',
+        pastEmojiL: '💀', pastEmojiR: '💀', pastLabel: 'Past Showings',
+        footerText: '🦅 Go Birds! 🎃', footerTextColor: '#009A44',
+        og: 'og-halloween.png',
+        css: { '--bg':'#0d0208','--glow-top':'#3d0800','--glow-bottom':'#1a0a2e','--accent':'#f97316','--accent-dark':'#c2410c','--accent-light':'#fdba74','--header-bg':'#1a0a00','--stripe-a':'#f97316','--stripe-b':'#1a0a00','--card-border':'#c2410c','--footer-bg':'#ffffff','--footer-border':'#c2410c','--footer-text':'#009A44' },
+        floater: 'bats',
+        deleteParticles: ['💨','💨','💨','🎃','👻','🦇','💀','🕷️','⭐','✨'],
+      },
+      thanksgiving: {
+        range: [[11,1],[11,30]],
+        title: 'Popcorn Jawn',
+        headerEmoji: '🍿',
+        taglineEmojiL: '🦃', taglineEmojiR: '🍂',
+        tagline: 'Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia',
+        summonEmojiL: '🌽', summonEmojiR: '🌽',
+        summonLabel: 'Request Something',
+        emptyEmoji: '🦃', emptyTitle: 'Nothing on the table yet', emptySub: 'Request something to watch',
+        pastEmojiL: '🍂', pastEmojiR: '🍂', pastLabel: 'Past Showings',
+        footerText: '🦅 Go Birds! 🦃', footerTextColor: '#92400e',
+        og: 'og-thanksgiving.png',
+        css: { '--bg':'#0f0a00','--glow-top':'#3d1f00','--glow-bottom':'#1a0a00','--accent':'#d97706','--accent-dark':'#b45309','--accent-light':'#fcd34d','--header-bg':'#1c1000','--stripe-a':'#d97706','--stripe-b':'#1c1000','--card-border':'#b45309','--footer-bg':'#fffbeb','--footer-border':'#b45309','--footer-text':'#92400e' },
+        floater: 'leaves',
+        deleteParticles: ['🍂','🍁','🌽','🦃','🍂','🍁','✨','🌾'],
+      },
+      christmas: {
+        range: [[12,1],[1,7]],
+        title: 'Popcorn Jawn',
+        headerEmoji: '🍿',
+        taglineEmojiL: '🎄', taglineEmojiR: '⛄',
+        tagline: 'Now Showing · Fresh Downloads · Made with ❤️ in Philadelphia',
+        summonEmojiL: '🎁', summonEmojiR: '🎁',
+        summonLabel: 'Wish for Something',
+        emptyEmoji: '🎄', emptyTitle: "Santa's still loading the queue", emptySub: 'Make a wish',
+        pastEmojiL: '⭐', pastEmojiR: '⭐', pastLabel: 'Past Showings',
+        footerText: '🦅 Go Birds! 🎄', footerTextColor: '#15803d',
+        og: 'og-christmas.png',
+        css: { '--bg':'#020d08','--glow-top':'#003d12','--glow-bottom':'#1a0008','--accent':'#16a34a','--accent-dark':'#dc2626','--accent-light':'#86efac','--header-bg':'#001a08','--stripe-a':'#dc2626','--stripe-b':'#16a34a','--card-border':'#dc2626','--footer-bg':'#f0fdf4','--footer-border':'#dc2626','--footer-text':'#15803d' },
+        floater: 'snow',
+        deleteParticles: ['❄️','⛄','🎄','🎁','⭐','✨','🔔','🎅'],
+      },
+      default: {
+        range: null,
+        title: 'Popcorn Jawn',
+        headerEmoji: '🍿',
+        taglineEmojiL: '🎬', taglineEmojiR: '🍿',
+        tagline: 'Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia',
+        summonEmojiL: '🎬', summonEmojiR: '🎬',
+        summonLabel: 'Request Something',
+        emptyEmoji: '🎬', emptyTitle: 'Nothing in the queue yet', emptySub: 'Request something to watch',
+        pastEmojiL: '📼', pastEmojiR: '📼', pastLabel: 'Past Showings',
+        footerText: '🦅 Go Birds!', footerTextColor: '#dc2626',
+        og: 'og-default.png',
+        css: { '--bg':'#111827','--glow-top':'rgba(220,38,38,0.12)','--glow-bottom':'rgba(0,0,0,0)','--accent':'#dc2626','--accent-dark':'#b91c1c','--accent-light':'#fca5a5','--header-bg':'#0f172a','--stripe-a':'#dc2626','--stripe-b':'#0f172a','--card-border':'#374151','--footer-bg':'#ffffff','--footer-border':'#374151','--footer-text':'#dc2626' },
+        floater: null,
+        deleteParticles: ['🍿','🎬','⭐','🎭','🎞️','🎟️','✨','💫'],
+      },
+    };
+
+    let _activeTheme = 'halloween';
+
+    function detectTheme() {
+      const now = new Date();
+      const m = now.getMonth() + 1, d = now.getDate();
+      for (const [key, t] of Object.entries(THEMES)) {
+        if (!t.range) continue;
+        const [[sm, sd], [em, ed]] = t.range;
+        if (sm > em) { // year-wrap (Dec–Jan)
+          if ((m === sm && d >= sd) || m > sm || m < em || (m === em && d <= ed)) return key;
+        } else {
+          if ((m > sm || (m === sm && d >= sd)) && (m < em || (m === em && d <= ed))) return key;
+        }
+      }
+      return 'default';
+    }
+
+    function applyTheme(key) {
+      const t = THEMES[key] || THEMES.default;
+      _activeTheme = key;
+      const root = document.documentElement;
+      for (const [k, v] of Object.entries(t.css)) root.style.setProperty(k, v);
+      const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setText('site-title', t.title);
+      setText('header-emoji', t.headerEmoji);
+      setText('tagline-emoji-left', t.taglineEmojiL);
+      setText('tagline-text', t.tagline);
+      setText('tagline-emoji-right', t.taglineEmojiR);
+      setText('summon-emoji-left', t.summonEmojiL);
+      setText('summon-label', t.summonLabel);
+      setText('summon-emoji-right', t.summonEmojiR);
+      setText('empty-emoji', t.emptyEmoji);
+      setText('empty-title', t.emptyTitle);
+      setText('empty-sub', t.emptySub);
+      setText('past-emoji-left', t.pastEmojiL);
+      setText('past-label', t.pastLabel);
+      setText('past-emoji-right', t.pastEmojiR);
+      setText('footer-text', t.footerText);
+      const ft = document.getElementById('footer-text');
+      if (ft) ft.style.color = t.footerTextColor;
+      if (window._floaterStop) { window._floaterStop(); window._floaterStop = null; }
+      if (t.floater === 'bats') startBats();
+      else if (t.floater === 'leaves') startLeaves();
+      else if (t.floater === 'snow') startSnow();
+    }
+
+    function startLeaves() {
+      const emojis = ['🍂','🍁','🍂','🍁','🌿'];
+      let stopped = false;
+      window._floaterStop = () => { stopped = true; };
+      function spawnLeaf() {
+        if (stopped) return;
+        const el = document.createElement('span');
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const startX = Math.random() * window.innerWidth;
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:1;font-size:${1+Math.random()}rem;left:${startX}px;top:-30px;opacity:0.7;`;
+        document.body.appendChild(el);
+        const dur = 4000 + Math.random() * 4000;
+        const drift = (Math.random() - 0.5) * 200;
+        el.animate([
+          { transform: `translate(0,0) rotate(0deg)`, opacity: 0.7 },
+          { transform: `translate(${drift}px,${window.innerHeight+40}px) rotate(${(Math.random()-0.5)*360}deg)`, opacity: 0 }
+        ], { duration: dur, easing: 'linear', fill: 'forwards' });
+        setTimeout(() => el.remove(), dur + 100);
+        setTimeout(spawnLeaf, 600 + Math.random() * 800);
+      }
+      spawnLeaf();
+    }
+
+    function startSnow() {
+      let stopped = false;
+      window._floaterStop = () => { stopped = true; };
+      function spawnFlake() {
+        if (stopped) return;
+        const el = document.createElement('span');
+        el.textContent = '❄️';
+        const size = 0.7 + Math.random() * 0.8;
+        el.style.cssText = `position:fixed;pointer-events:none;z-index:1;font-size:${size}rem;left:${Math.random()*window.innerWidth}px;top:-20px;opacity:0.6;`;
+        document.body.appendChild(el);
+        const dur = 5000 + Math.random() * 5000;
+        const drift = (Math.random() - 0.5) * 100;
+        el.animate([
+          { transform: `translate(0,0)`, opacity: 0.6 },
+          { transform: `translate(${drift}px,${window.innerHeight+30}px)`, opacity: 0 }
+        ], { duration: dur, easing: 'linear', fill: 'forwards' });
+        setTimeout(() => el.remove(), dur + 100);
+        setTimeout(spawnFlake, 300 + Math.random() * 500);
+      }
+      spawnFlake();
+    }
+
+    // Apply theme before load so colors are right immediately
+    applyTheme(detectTheme());
 
     // --- Activity drawer ---
     let _menuOpen = false, _menuTimer = null, _activeShares = [];
@@ -790,7 +1050,7 @@
             <div style="margin-bottom:12px;">
               <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;" title="${s.name}">${s.name}</div>
               <div style="background:#f0e0e0;border-radius:4px;height:5px;">
-                <div style="background:#C8102E;height:5px;border-radius:4px;width:${s.pct}%;transition:width .5s;"></div>
+                <div style="background:#f97316;height:5px;border-radius:4px;width:${s.pct}%;transition:width .5s;"></div>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:3px;">
                 <span>${s.pct}%</span><span>${d.paused ? '—' : s.eta}</span>
@@ -818,7 +1078,7 @@
                 <div style="font-size:12px;font-weight:600;color:#333;">${e.show}</div>
                 <div style="font-size:11px;color:#888;margin-bottom:3px;">S${String(e.season).padStart(2,'0')}E${String(e.episode).padStart(2,'0')}</div>
                 <div style="background:#f0e0e0;border-radius:4px;height:5px;">
-                  <div style="background:#C8102E;height:5px;border-radius:4px;width:${e.pct}%;transition:width .5s;"></div>
+                  <div style="background:#f97316;height:5px;border-radius:4px;width:${e.pct}%;transition:width .5s;"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:3px;">
                   <span>${e.pct}%</span><span>${e.eta || ''}</span>
@@ -857,13 +1117,16 @@
           body: JSON.stringify({mediaId: id, mediaType: type}),
         });
         if (res.ok) {
-          btn.textContent = 'Queued 🍿';
+          btn.textContent = 'Summoned! 👻';
           btn.style.background = '#16a34a';
-          // Save to pending list and show greyed-out card in Now Showing
-          const pending = getPending().filter(p => String(p.id) !== String(id));
-          pending.unshift({id, type, title, year, posterPath: posterImg, requestedAt: Date.now()});
-          savePending(pending);
-          renderPendingCards(null);
+          const r = btn.getBoundingClientRect();
+          spawnSpooks(r.left + r.width/2, r.top + r.height/2);
+          await fetch('/arr-control/pending', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id, type, title, year, posterPath: posterImg}),
+          }).catch(() => {});
+          renderPendingCards(_activeShares);
           // Close dropdown
           setTimeout(() => { document.getElementById('req-results').innerHTML = ''; document.getElementById('req-input').value = ''; }, 800);
         } else {
@@ -874,6 +1137,67 @@
         }
       } catch {
         btn.textContent = 'Error';
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteShare(btn, e, radarrMovieId, radarrHistoryId, sonarrHistoryId, title, year) {
+      e.stopPropagation();
+      const isTV = !!sonarrHistoryId && !radarrMovieId;
+      const label = title + (year ? ` (${year})` : '');
+      const siteName = (THEMES[_activeTheme] || THEMES.halloween).title;
+      const msg = `Delete "${label}" and remove the file from disk?`;
+      if (!confirm(msg)) return;
+      btn.textContent = '…';
+      btn.disabled = true;
+      const params = new URLSearchParams();
+      if (radarrMovieId) params.set('radarr_movie_id', radarrMovieId);
+      if (radarrHistoryId) params.set('radarr_history_id', radarrHistoryId);
+      if (sonarrHistoryId) params.set('sonarr_history_id', sonarrHistoryId);
+      try {
+        const res = await fetch('/arr-control/shares/delete?' + params.toString());
+        if (res.ok) {
+          const card = btn.closest('.card');
+          // Big poof from card center
+          const cr = card.getBoundingClientRect();
+          const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
+          const poofEmojis = (THEMES[_activeTheme] || THEMES.halloween).deleteParticles;
+          for (let i = 0; i < 28; i++) {
+            setTimeout(() => {
+              const p = document.createElement('span');
+              p.textContent = poofEmojis[Math.floor(Math.random() * poofEmojis.length)];
+              const size = 1.5 + Math.random() * 2.5;
+              p.style.cssText = `position:fixed;pointer-events:none;z-index:9999;font-size:${size}rem;left:${cx}px;top:${cy}px;`;
+              document.body.appendChild(p);
+              const angle = (Math.random() * 360) * Math.PI / 180;
+              const dist = 80 + Math.random() * 280;
+              const dur = 500 + Math.random() * 600;
+              p.animate([
+                { transform: 'translate(-50%,-50%) scale(0.3) rotate(0deg)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px)) scale(1.4) rotate(${(Math.random()*720-360)}deg)`, opacity: 0 }
+              ], { duration: dur, easing: 'cubic-bezier(0.1,0.8,0.4,1)', fill: 'forwards' });
+              setTimeout(() => p.remove(), dur + 50);
+            }, i * 25);
+          }
+          card.style.transition = 'opacity 0.4s, transform 0.4s';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.85)';
+          setTimeout(() => card.remove(), 400);
+          // Remove from _activeShares and refresh hamburger
+          _activeShares = _activeShares.filter(s => {
+            if (radarrMovieId && String(s.radarr_movie_id) === String(radarrMovieId)) return false;
+            if (radarrHistoryId && String(s.radarr_history_id) === String(radarrHistoryId)) return false;
+            if (sonarrHistoryId && String(s.sonarr_history_id) === String(sonarrHistoryId)) return false;
+            return true;
+          });
+          populateUploads();
+        } else {
+          btn.textContent = '🗑';
+          btn.disabled = false;
+          alert('Delete failed');
+        }
+      } catch {
+        btn.textContent = '🗑';
         btn.disabled = false;
       }
     }
