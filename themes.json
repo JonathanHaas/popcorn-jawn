@@ -73,6 +73,44 @@
     "floaterEmoji": ["🍂", "🍁", "🌽", "🍂", "🍁"],
     "deleteParticles": ["🍂", "🍁", "🌽", "🦃", "🍂", "🍁", "✨", "🌾"]
   },
+  "ramadan": {
+    "_note": "Lunar calendar — range moves ~11 days earlier each year. Approximate through ~2027; update annually.",
+    "range": {"start": "02-15", "end": "03-20"},
+    "title": "Ramadan Jawn",
+    "tagline": "Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia",
+    "summonLabel": "Request Something",
+    "emptyTitle": "Nothing in the queue yet",
+    "emptySub": "Request something to watch",
+    "emptyEmoji": "🌙",
+    "footerText": "🦅 Go Birds! 🌙",
+    "footerTextColor": "#006d56",
+    "emoji": {"taglineL": "🌙", "taglineR": "⭐", "summonL": "🕌", "summonR": "🕌", "pastL": "🌙", "pastR": "⭐", "header": "🌙"},
+    "css": {
+      "--bg": "#030d0a", "--glow-top": "#003320", "--glow-bottom": "#0a0020",
+      "--accent": "#00b894", "--accent-dark": "#006d56", "--accent-light": "#55efc4",
+      "--header-bg": "#001a10", "--stripe-a": "#00b894", "--stripe-b": "#1a0a30",
+      "--card-border": "#00b894", "--footer-bg": "#f0fff8", "--footer-border": "#006d56", "--footer-text": "#006d56"
+    },
+    "og": {
+      "bgColor": [3, 13, 10],
+      "glowTop": [0, 51, 32],
+      "glowBottom": [10, 0, 32],
+      "accentHex": "#00b894",
+      "accentRGB": [0, 184, 148],
+      "accentDarkHex": "#006d56",
+      "accentLightHex": "#55efc4",
+      "stripeA": "#00b894",
+      "stripeB": "#1a0a30",
+      "titleColor": [0, 184, 148],
+      "tagColor": [85, 239, 196],
+      "subColor": [0, 109, 86],
+      "sub": "~ Ramadan Mubarak ~",
+      "style": "ramadan"
+    },
+    "floater": "floater",
+    "floaterEmoji": ["🌙", "⭐", "🌟", "🌙", "⭐"],
+    "deleteParticles": ["🌙", "⭐", "✨", "🌟", "💫", "🕌", "🌙", "⭐"]
+  },
   "hanukkah": {
     "range": {"start": "12-10", "end": "12-22"},
     "title": "Latke Jawn",
@@ -109,6 +147,43 @@
     "floater": "floater",
     "floaterEmoji": ["🌟", "✡️", "🕯️", "🌟", "✡️"],
     "deleteParticles": ["🕎", "✡️", "🕯️", "⭐", "✨", "💫", "🌟", "❄️"]
+  },
+  "newyears": {
+    "range": {"start": "12-26", "end": "01-03"},
+    "title": "Auld Lang Jawn",
+    "tagline": "Now Showing · Fresh Downloads · Made with 🧡 in Philadelphia",
+    "summonLabel": "Wish for Something",
+    "emptyTitle": "Nothing ringing in the queue yet",
+    "emptySub": "Request something to watch",
+    "emptyEmoji": "🎆",
+    "footerText": "🦅 Go Birds! 🥂",
+    "footerTextColor": "#aa8800",
+    "emoji": {"taglineL": "🎆", "taglineR": "🎇", "summonL": "🥂", "summonR": "🥂", "pastL": "✨", "pastR": "✨", "header": "🎆"},
+    "css": {
+      "--bg": "#080808", "--glow-top": "#2a1f00", "--glow-bottom": "#000820",
+      "--accent": "#d4af37", "--accent-dark": "#aa8800", "--accent-light": "#f5e07a",
+      "--header-bg": "#0f0f0f", "--stripe-a": "#d4af37", "--stripe-b": "#1a1a2e",
+      "--card-border": "#d4af37", "--footer-bg": "#fffff0", "--footer-border": "#d4af37", "--footer-text": "#aa8800"
+    },
+    "og": {
+      "bgColor": [8, 8, 8],
+      "glowTop": [42, 31, 0],
+      "glowBottom": [0, 8, 32],
+      "accentHex": "#d4af37",
+      "accentRGB": [212, 175, 55],
+      "accentDarkHex": "#aa8800",
+      "accentLightHex": "#f5e07a",
+      "stripeA": "#d4af37",
+      "stripeB": "#1a1a2e",
+      "titleColor": [212, 175, 55],
+      "tagColor": [245, 224, 122],
+      "subColor": [170, 136, 0],
+      "sub": "~ see you next year ~",
+      "style": "newyears"
+    },
+    "floater": "floater",
+    "floaterEmoji": ["🎆", "🎇", "✨", "🥂", "🎉"],
+    "deleteParticles": ["🎆", "🎇", "✨", "🥂", "🎉", "💫", "⭐", "🌟"]
   },
   "christmas": {
     "range": {"start": "12-01", "end": "01-07"},

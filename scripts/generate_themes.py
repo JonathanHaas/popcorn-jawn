@@ -229,6 +229,106 @@ def draw_hanukkah(draw, og):
             draw.polygon(pts, outline=gold, fill=None)
 
 
+def draw_newyears(draw, og):
+    gold = (212, 175, 55)
+    silver = (192, 192, 192)
+    cx, cy = W // 2, 110
+
+    # Fireworks bursts at 3 points
+    burst_centers = [(cx - 200, cy - 20), (cx + 200, cy - 30), (cx, cy - 50)]
+    burst_colors = [gold, silver, gold]
+    rng = random.Random(7)
+    for (bx, by), bc in zip(burst_centers, burst_colors):
+        for ang in range(0, 360, 18):
+            r = math.radians(ang)
+            length = rng.randint(28, 55)
+            ex = bx + int(length * math.cos(r))
+            ey = by + int(length * math.sin(r))
+            draw.line([(bx, by), (ex, ey)], fill=bc, width=2)
+            draw.ellipse([ex - 3, ey - 3, ex + 3, ey + 3], fill=bc)
+
+    # Champagne glass at center
+    gx, gy = cx, cy - 10
+    # bowl (two lines forming a V-shape widened at top)
+    bowl_pts = [(gx - 22, gy - 30), (gx + 22, gy - 30), (gx + 8, gy + 10), (gx - 8, gy + 10)]
+    draw.polygon(bowl_pts, outline=gold, fill=None)
+    # stem
+    draw.line([(gx, gy + 10), (gx, gy + 40)], fill=gold, width=3)
+    # base
+    draw.line([(gx - 18, gy + 40), (gx + 18, gy + 40)], fill=gold, width=3)
+    # bubbles
+    for bub_x, bub_y in [(gx - 8, gy - 10), (gx, gy - 18), (gx + 8, gy - 8)]:
+        draw.ellipse([bub_x - 3, bub_y - 3, bub_x + 3, bub_y + 3], outline=gold)
+
+    # Scattered sparkle stars
+    rng2 = random.Random(42)
+    for _ in range(20):
+        sx = rng2.randint(80, W - 80)
+        sy = rng2.randint(60, H - 60)
+        sc = gold if rng2.random() > 0.4 else silver
+        for ang in [0, 45, 90, 135]:
+            r = math.radians(ang)
+            sz = rng2.randint(6, 14)
+            draw.line([(sx - int(sz * math.cos(r)), sy - int(sz * math.sin(r))),
+                       (sx + int(sz * math.cos(r)), sy + int(sz * math.sin(r)))], fill=sc, width=2)
+
+
+def draw_ramadan(draw, og):
+    teal = (0, 184, 148)
+    gold = (212, 175, 55)
+    cx, cy = W // 2, 85
+
+    # Crescent moon: large circle minus offset circle
+    moon_r = 48
+    # Draw the full circle in gold
+    draw.ellipse([cx - moon_r, cy - moon_r, cx + moon_r, cy + moon_r], fill=gold)
+    # Mask it with bg color circle offset to right to create crescent
+    bg = tuple(og["bgColor"])
+    offset = 34
+    draw.ellipse([cx - moon_r + offset, cy - moon_r + 4,
+                  cx + moon_r + offset, cy + moon_r + 4], fill=bg)
+
+    # Small star inside the crescent (upper right of moon)
+    sx, sy = cx + 38, cy - 22
+    star_r = 10
+    star_pts = []
+    for i in range(5):
+        outer_a = math.radians(i * 72 - 90)
+        inner_a = math.radians(i * 72 - 90 + 36)
+        star_pts.append((sx + int(star_r * math.cos(outer_a)), sy + int(star_r * math.sin(outer_a))))
+        star_pts.append((sx + int(star_r * 0.4 * math.cos(inner_a)), sy + int(star_r * 0.4 * math.sin(inner_a))))
+    draw.polygon(star_pts, fill=teal)
+
+    # Simple lantern below the moon
+    lx, ly = cx, cy + 85
+    draw.rectangle([lx - 18, ly - 30, lx + 18, ly + 30], fill=teal, outline=gold, width=2)
+    # Pointed top
+    draw.polygon([(lx - 18, ly - 30), (lx + 18, ly - 30), (lx, ly - 50)], fill=teal, outline=gold, width=2)
+    # Horizontal lines (panes)
+    for offset in [-15, 0, 15]:
+        draw.line([(lx - 18, ly + offset), (lx + 18, ly + offset)], fill=gold, width=1)
+    # Vertical center line
+    draw.line([(lx, ly - 30), (lx, ly + 30)], fill=gold, width=1)
+    # Handle at top
+    draw.line([(lx, ly - 50), (lx, ly - 60)], fill=gold, width=2)
+    draw.arc([lx - 8, ly - 68, lx + 8, ly - 52], 180, 0, fill=gold, width=2)
+
+    # Scattered 5-pointed stars on sides
+    star_positions = [
+        (110, 130), (110, 260), (110, 390), (110, H - 120),
+        (W - 110, 130), (W - 110, 260), (W - 110, 390), (W - 110, H - 120),
+    ]
+    for spx, spy in star_positions:
+        r = 12
+        pts = []
+        for i in range(5):
+            oa = math.radians(i * 72 - 90)
+            ia = math.radians(i * 72 - 90 + 36)
+            pts.append((spx + int(r * math.cos(oa)), spy + int(r * math.sin(oa))))
+            pts.append((spx + int(r * 0.4 * math.cos(ia)), spy + int(r * 0.4 * math.sin(ia))))
+        draw.polygon(pts, fill=teal)
+
+
 def draw_default(draw, og):
     acc = tuple(og["accentRGB"])
     cx, cy = W//2, 110
@@ -253,7 +353,9 @@ def draw_default(draw, og):
 STYLE_DRAWERS = {
     "halloween": draw_halloween,
     "thanksgiving": draw_thanksgiving,
+    "ramadan": draw_ramadan,
     "hanukkah": draw_hanukkah,
+    "newyears": draw_newyears,
     "christmas": draw_christmas,
     "default": draw_default,
 }
